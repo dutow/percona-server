@@ -154,9 +154,10 @@ show status where `Variable_name` like  'Mysqlx_sessions%' and not `Variable_nam
 
 ###try login with invalid host when mysqx plugin is installed
 ###this is expected to crash until Bug#21372364 is fixed
+--let $host_uuid=`SELECT UUID()`
 --replace_regex /No such host is known.+$/Host not found/ /Host not found .+$/Host not found/
 --error 1
---exec $MYSQLXTEST -uroot --password='' -hinvalid -v%EXPECT_ERROR%=ER_MUST_CHANGE_PASSWORD --file=$MYSQL_TMP_DIR/mysqlx-connection_current_user.tmp 2>&1
+--exec $MYSQLXTEST -uroot --password='' -hinvalid-$host_uuid -v%EXPECT_ERROR%=ER_MUST_CHANGE_PASSWORD --file=$MYSQL_TMP_DIR/mysqlx-connection_current_user.tmp 2>&1
 --sleep 1
 
 # replace_regex did consume last character in line, lets put it back
