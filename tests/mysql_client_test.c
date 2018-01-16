@@ -1509,7 +1509,8 @@ static void test_double_compare()
 {
   MYSQL_STMT *stmt;
   int        rc;
-  char       real_data[10], tiny_data;
+  char       real_data[10]= {};
+  char       tiny_data;
   double     double_data;
   MYSQL_RES  *result;
   MYSQL_BIND my_bind[3];
@@ -3858,6 +3859,7 @@ static void bind_fetch(int row_count)
 
   /* Always bzero all members of bind parameter */
   bzero((char*) my_bind, sizeof(my_bind));
+  bzero((char*) data, sizeof(data));
 
   for (i= 0; i < (int) array_elements(my_bind); i++)
   {
@@ -5136,7 +5138,7 @@ static void test_manual_sample()
   short        small_data;
   int          int_data;
   int          rc;
-  char         str_data[50];
+  char         str_data[50] = {0,};
   ulonglong    affected_rows;
   MYSQL_BIND   my_bind[3];
   my_bool      is_null;
@@ -7150,7 +7152,7 @@ static void test_decimal_bug()
 {
   MYSQL_STMT *stmt;
   MYSQL_BIND my_bind[1];
-  char       data[30];
+  char       data[30] = {0,};
   int        rc;
   my_bool    is_null;
 
@@ -10885,7 +10887,7 @@ static void test_view_2where()
   MYSQL_STMT *stmt;
   int rc, i;
   MYSQL_BIND      my_bind[8];
-  char            parms[8][100];
+  char            parms[8][100] = {{0,},};
   ulong           length[8];
   const char *query=
     "select relid, report, handle, log_group, username, variant, type, "
@@ -11123,7 +11125,7 @@ static void test_left_join_view()
 static void test_view_insert_fields()
 {
   MYSQL_STMT	*stmt;
-  char		parm[11][1000];
+  char		parm[11][1000] = {{0,},};
   ulong         l[11];
   int		rc, i;
   MYSQL_BIND	my_bind[11];
@@ -12628,7 +12630,7 @@ static void test_bug8330()
   int i, rc;
   const char *query= "select a,b from t1 where a=?";
   MYSQL_BIND my_bind[2];
-  long lval[2];
+  long lval[2] = {0,};
 
   myheader("test_bug8330");
 
@@ -13133,7 +13135,7 @@ static void test_bug9478()
     DIE_UNLESS(rc == MYSQL_NO_DATA);
 
     {
-      char buff[8];
+      char buff[8] = {0,};
       /* Fill in the fetch packet */
       int4store(buff, stmt->stmt_id);
       buff[4]= 1;                               /* prefetch rows */

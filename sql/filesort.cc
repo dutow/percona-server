@@ -226,7 +226,7 @@ ha_rows filesort(THD *thd, TABLE *table, SORT_FIELD *sortorder, uint s_length,
       }
       if ((table_sort.sort_keys=
            make_char_array(table_sort.sort_keys,
-                           param.keys, param.rec_length, MYF(0))))
+                           param.keys, param.rec_length, MYF(MY_ZEROFILL))))
       {
         table_sort.sort_keys_size=
           char_array_size(param.keys, param.rec_length);

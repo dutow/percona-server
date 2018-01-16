@@ -218,7 +218,7 @@ typedef struct st_log_info
   bool fatal; // if the purge happens to give us a negative offset
   mysql_mutex_t lock;
   st_log_info()
-    : index_file_offset(0), index_file_start_offset(0),
+    : log_file_name(), index_file_offset(0), index_file_start_offset(0),
       pos(0), fatal(0)
     {
       log_file_name[0] = '\0';

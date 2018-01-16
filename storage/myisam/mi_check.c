@@ -3614,6 +3614,7 @@ static int sort_get_next_record(MI_SORT_PARAM *sort_param)
       if (_mi_pack_get_block_info(info, &sort_param->bit_buff, &block_info,
                                   &sort_param->rec_buff, -1, sort_param->pos))
 	DBUG_RETURN(-1);
+      sort_param->rec_buff[block_info.rec_len] = 0;
       if (!block_info.rec_len &&
 	  sort_param->pos + MEMMAP_EXTRA_MARGIN ==
 	  sort_param->read_cache.end_of_file)
