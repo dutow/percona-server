@@ -113,7 +113,7 @@ uchar **Filesort_buffer::alloc_sort_buffer(uint num_records, uint record_length)
   {
     uchar **sort_keys=
       (uchar**) my_malloc(num_records * (record_length + sizeof(uchar*)),
-                          MYF(0));
+                          MYF(MY_ZEROFILL));
     m_idx_array= Idx_array(sort_keys, num_records);
     m_record_length= record_length;
     uchar **start_of_data= m_idx_array.array() + m_idx_array.size();

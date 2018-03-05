@@ -261,7 +261,7 @@ typedef struct st_log_info
   int entry_index; //used in purge_logs(), calculatd in find_log_pos().
   mysql_mutex_t lock;
   st_log_info()
-    : index_file_offset(0), index_file_start_offset(0),
+    : log_file_name(""), index_file_offset(0), index_file_start_offset(0),
       pos(0), fatal(0), entry_index(0)
     {
       log_file_name[0] = '\0';

@@ -10544,7 +10544,7 @@ int insert_pointer_name(reg1 POINTER_ARRAY *pa,char * name)
 		     (sizeof(char *)+sizeof(*pa->flag))),MYF(MY_WME))))
       DBUG_RETURN(-1);
     if (!(pa->str= (uchar*) my_malloc((uint) (PS_MALLOC-MALLOC_OVERHEAD),
-				     MYF(MY_WME))))
+				     MYF(MY_WME | MY_ZEROFILL))))
     {
       my_free(pa->typelib.type_names);
       DBUG_RETURN (-1);
