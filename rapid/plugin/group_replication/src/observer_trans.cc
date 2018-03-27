@@ -817,6 +817,14 @@ Transaction_Message::append_cache(IO_CACHE *src)
   DBUG_ENTER("append_cache");
   DBUG_ASSERT(src->type == READ_CACHE);
 
+  if(src->read_pos < src->read_end) {
+    // encrypted mode doesn't support it, "fix"
+    data.insert(data.end(),
+                src->read_pos,
+                src->read_end);
+    src->read_pos= src->read_end;
+  }
+
   uchar *buffer= src->read_pos;
   size_t length= my_b_fill(src);
   if (src->file == -1)
