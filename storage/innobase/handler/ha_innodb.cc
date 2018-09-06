@@ -333,6 +333,19 @@ static TYPELIB innodb_default_row_format_typelib = {
 	NULL
 };
 
+static const char* redo_log_encrypt_names[] = {
+	"off",
+	"master_key",
+	"rotated_key",
+	NullS
+};
+
+static TYPELIB redo_log_encrypt_typelib = {
+	array_elements(redo_log_encrypt_names) - 1,
+	"redo_log_encrypt_typelib",
+	redo_log_encrypt_names,
+	NULL
+};
 /* The following counter is used to convey information to InnoDB
 about server activity: in case of normal DML ops it is not
 sensible to call srv_active_wake_master_thread after each
@@ -21912,6 +21925,11 @@ static MYSQL_SYSVAR_UINT(limit_optimistic_insert_debug,
   "Artificially limit the number of records per B-tree page (0=unlimited).",
   NULL, NULL, 0, 0, UINT_MAX32, 0);
 
+static MYSQL_SYSVAR_ENUM(redo_log_encrypt, srv_redo_log_encrypt,
+  PLUGIN_VAR_OPCMDARG,
+  "Enable or disable Encryption of REDO tablespace. Possible values: OFF, MK, RK.",
+  NULL, NULL, REDO_LOG_ENCRYPT_OFF, &redo_log_encrypt_typelib);
+
 static MYSQL_SYSVAR_BOOL(trx_purge_view_update_only_debug,
   srv_purge_view_update_only_debug, PLUGIN_VAR_NOCMDARG,
   "Pause actual purging any delete-marked records, but merely update the purge view."
@@ -22185,6 +22203,7 @@ static struct st_mysql_sys_var* innobase_system_variables[]= {
   MYSQL_SYSVAR(compression_failure_threshold_pct),
   MYSQL_SYSVAR(compression_pad_pct_max),
   MYSQL_SYSVAR(default_row_format),
+  MYSQL_SYSVAR(redo_log_encrypt),
 #ifdef UNIV_DEBUG
   MYSQL_SYSVAR(trx_rseg_n_slots_debug),
   MYSQL_SYSVAR(limit_optimistic_insert_debug),

@@ -460,6 +460,26 @@ create_log_files(
 	ut_a(fil_validate());
 	ut_a(log_space != NULL);
 
+      /* Once the redo log is set to be encrypted,
++       initialize encryption information. */
+       if (srv_redo_log_encrypt != REDO_LOG_ENCRYPT_OFF) {
+               if (!Encryption::check_keyring()) {
+                       ib::error()
+                               << "Redo log encryption is enabled,"
+                               << " but keyring plugin is not loaded.";
+
+                       return(DB_ERROR);
+               }
+
+               log_space->flags |= FSP_FLAGS_MASK_ENCRYPTION;
+               err = fil_set_encryption(log_space->id,
+                                        Encryption::AES,
+                                        NULL,
+                                        NULL);
+               ut_ad(err == DB_SUCCESS);
+       }
+
+
 	logfile0 = fil_node_create(
 		logfilename, (ulint) srv_log_file_size,
 		log_space, false, false);
@@ -2248,6 +2268,14 @@ innobase_start_or_create_for_mysql(void)
 		if (!log_group_init(0, i, srv_log_file_size * UNIV_PAGE_SIZE,
 				    SRV_LOG_SPACE_FIRST_ID)) {
 			return(srv_init_abort(DB_ERROR));
+		}
+
+		/* Read the first log file header to get the encryption
+		information if it exist. */
+		if (srv_force_recovery < SRV_FORCE_NO_LOG_REDO) {
+		    if (!log_read_encryption()) {
+			return(srv_init_abort(DB_ERROR));
+		    }
 		}
 	}
 

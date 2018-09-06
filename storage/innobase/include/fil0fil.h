@@ -230,6 +230,9 @@ struct fil_space_t {
 	/** Encrypt key length*/
 	ulint			encryption_klen;
 
+	/** Encrypt key version*/
+	ulint			encryption_key_version;
+
 	/** Encrypt initial vector */
 	byte			encryption_iv[ENCRYPTION_KEY_LEN];
 

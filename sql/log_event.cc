@@ -5723,7 +5723,7 @@ Format_description_log_event(const char* buf, uint event_len,
 }
 
 bool Format_description_log_event::start_decryption(Start_encryption_log_event* sele)
-{
+    {
   DBUG_ASSERT(!crypto_data.is_enabled());
 
   if (!sele->is_valid())
