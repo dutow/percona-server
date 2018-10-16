@@ -45,6 +45,8 @@ Created 10/25/1995 Heikki Tuuri
 #include <list>
 #include <vector>
 
+#define REDO_LOG_ENCRYPT_NO_VERSION 65536
+
 #ifdef UNIV_HOTBACKUP
 #include <cstring>
 /** determine if file is intermediate / temporary.These files are created during
@@ -229,6 +231,9 @@ struct fil_space_t {
 
 	/** Encrypt key length*/
 	ulint			encryption_klen;
+
+	/** Encrypt key version*/
+	ulint			encryption_key_version;
 
 	/** Encrypt initial vector */
 	byte			encryption_iv[ENCRYPTION_KEY_LEN];

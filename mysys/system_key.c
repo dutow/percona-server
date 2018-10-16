@@ -22,7 +22,8 @@
    System keys cannot have ':' in their name. We use ':' as a separator between
    system key's name and system key's version.
 */
-const char* valid_percona_system_keys[] = {PERCONA_BINLOG_KEY_NAME};
+const char* valid_percona_system_keys[] = {PERCONA_BINLOG_KEY_NAME, 
+                                           PERCONA_REDO_KEY_NAME};
 const size_t valid_percona_system_keys_size = array_elements(valid_percona_system_keys);
 
 uchar* parse_system_key(const uchar *key, const size_t key_length, uint *key_version,
