@@ -30,7 +30,7 @@ SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 
 --echo # Create a table with encryption
-CREATE TABLE t1(c1 INT, c2 char(20)) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE t1(c1 INT, c2 char(20)) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 
 SHOW CREATE TABLE t1;
 INSERT INTO t1 VALUES(0, "aaaaa");
@@ -168,7 +168,7 @@ DROP TABLE t1;
 --remove_file $MYSQLD_DATADIR/$dest_db/t1.cfg
 --remove_file $MYSQLD_DATADIR/$dest_db/t1.cfp
 --remove_file $MYSQLD_DATADIR/$dest_db/t1.ibd
-eval CREATE TABLE $dest_db.t1(c1 INT, c2 char(20)) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE $dest_db.t1(c1 INT, c2 char(20)) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 eval ALTER TABLE $dest_db.t1 DISCARD TABLESPACE;
 --copy_file $MYSQLD_DATADIR/t1.cfp_back $MYSQLD_DATADIR/$dest_db/t1.cfp
 --copy_file $MYSQLD_DATADIR/t1.ibd_back $MYSQLD_DATADIR/$dest_db/t1.ibd

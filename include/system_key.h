@@ -22,6 +22,7 @@
 C_MODE_START
 #define PERCONA_BINLOG_KEY_NAME "percona_binlog"
 #define PERCONA_REDO_KEY_NAME "percona_redo"
+#define PERCONA_INNODB_KEY_NAME "percona_innodb"
 extern const size_t valid_percona_system_keys_size;
 extern const char* valid_percona_system_keys[];
 

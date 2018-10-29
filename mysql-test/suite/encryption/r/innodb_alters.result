@@ -1,0 +1,379 @@
+SET @@global.keyring_file_data="MYSQL_TMP_DIR/mysecret_keyring";
+SHOW PLUGINS;
+Name	Status	Type	Library	License
+keyring_file	ACTIVE	KEYRING	keyring_file.so	GPL
+binlog	ACTIVE	STORAGE ENGINE	NULL	GPL
+mysql_native_password	ACTIVE	AUTHENTICATION	NULL	GPL
+sha256_password	ACTIVE	AUTHENTICATION	NULL	GPL
+PERFORMANCE_SCHEMA	ACTIVE	STORAGE ENGINE	NULL	GPL
+CSV	ACTIVE	STORAGE ENGINE	NULL	GPL
+MEMORY	ACTIVE	STORAGE ENGINE	NULL	GPL
+InnoDB	ACTIVE	STORAGE ENGINE	NULL	GPL
+XTRADB_READ_VIEW	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+XTRADB_INTERNAL_HASH_TABLES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+XTRADB_RSEG	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+XTRADB_ZIP_DICT	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+XTRADB_ZIP_DICT_COLS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_TRX	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_LOCKS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_LOCK_WAITS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMP	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMP_RESET	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMPMEM	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMPMEM_RESET	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMP_PER_INDEX	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CMP_PER_INDEX_RESET	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_BUFFER_PAGE	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_BUFFER_PAGE_LRU	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_BUFFER_POOL_STATS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_TEMP_TABLE_INFO	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_METRICS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_DEFAULT_STOPWORD	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_DELETED	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_BEING_DELETED	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_CONFIG	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_INDEX_CACHE	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_FT_INDEX_TABLE	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_TABLES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_TABLESTATS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_INDEXES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_COLUMNS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_FIELDS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_FOREIGN	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_FOREIGN_COLS	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_TABLESPACES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_DATAFILES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_CHANGED_PAGES	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_SYS_VIRTUAL	ACTIVE	INFORMATION SCHEMA	NULL	GPL
+INNODB_TABLESPACES_ENCRYPTION	ACTIVE	INFORMATION SCHEMA	NULL	BSD
+MyISAM	ACTIVE	STORAGE ENGINE	NULL	GPL
+MRG_MYISAM	ACTIVE	STORAGE ENGINE	NULL	GPL
+ARCHIVE	ACTIVE	STORAGE ENGINE	NULL	GPL
+BLACKHOLE	ACTIVE	STORAGE ENGINE	NULL	GPL
+FEDERATED	DISABLED	STORAGE ENGINE	NULL	GPL
+partition	ACTIVE	STORAGE ENGINE	NULL	GPL
+ngram	ACTIVE	FTPARSER	NULL	GPL
+SET GLOBAL innodb_file_per_table = ON;
+SET GLOBAL innodb_file_format = `Barracuda`;
+create table t1 (a varchar(255)) engine=innodb;
+SELECT NAME, MIN_KEY_VERSION FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION WHERE MIN_KEY_VERSION = 0;
+NAME	MIN_KEY_VERSION
+SELECT NAME, MIN_KEY_VERSION FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION WHERE MIN_KEY_VERSION <> 0;
+NAME	MIN_KEY_VERSION
+SELECT * FROM INFORMATION_SCHEMA.INNODB_SYS_TABLESPACES;
+SPACE	NAME	FLAG	FILE_FORMAT	ROW_FORMAT	PAGE_SIZE	ZIP_PAGE_SIZE	SPACE_TYPE	FS_BLOCK_SIZE	FILE_SIZE	ALLOCATED_SIZE
+2	mysql/plugin	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+3	mysql/servers	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+4	mysql/help_topic	33	Barracuda	Dynamic	16384	0	Single	4096	114688	114688
+5	mysql/help_category	33	Barracuda	Dynamic	16384	0	Single	4096	114688	114688
+6	mysql/help_relation	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+7	mysql/help_keyword	33	Barracuda	Dynamic	16384	0	Single	4096	114688	114688
+8	mysql/time_zone_name	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+9	mysql/time_zone	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+10	mysql/time_zone_transition	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+11	mysql/time_zone_transition_type	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+12	mysql/time_zone_leap_second	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+13	mysql/innodb_table_stats	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+14	mysql/innodb_index_stats	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+15	mysql/slave_relay_log_info	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+16	mysql/slave_master_info	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+17	mysql/slave_worker_info	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+18	mysql/gtid_executed	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+19	mysql/server_cost	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+20	mysql/engine_cost	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+21	sys/sys_config	33	Barracuda	Dynamic	16384	0	Single	4096	98304	98304
+23	test/t1	33	Barracuda	Dynamic	16384	0	Single	4096	98304	49152
+SELECT * FROM INFORMATION_SCHEMA.INNODB_SYS_TABLES;
+TABLE_ID	NAME	FLAG	N_COLS	SPACE	FILE_FORMAT	ROW_FORMAT	ZIP_PAGE_SIZE	SPACE_TYPE
+14	SYS_DATAFILES	0	5	0	Antelope	Redundant	0	System
+11	SYS_FOREIGN	0	7	0	Antelope	Redundant	0	System
+12	SYS_FOREIGN_COLS	0	7	0	Antelope	Redundant	0	System
+13	SYS_TABLESPACES	0	6	0	Antelope	Redundant	0	System
+15	SYS_VIRTUAL	0	6	0	Antelope	Redundant	0	System
+16	SYS_ZIP_DICT	0	6	0	Antelope	Redundant	0	System
+17	SYS_ZIP_DICT_COLS	0	6	0	Antelope	Redundant	0	System
+36	mysql/engine_cost	33	9	20	Barracuda	Dynamic	0	Single
+34	mysql/gtid_executed	33	6	18	Barracuda	Dynamic	0	Single
+21	mysql/help_category	33	7	5	Barracuda	Dynamic	0	Single
+23	mysql/help_keyword	33	5	7	Barracuda	Dynamic	0	Single
+22	mysql/help_relation	33	5	6	Barracuda	Dynamic	0	Single
+20	mysql/help_topic	33	9	4	Barracuda	Dynamic	0	Single
+30	mysql/innodb_index_stats	33	11	14	Barracuda	Dynamic	0	Single
+29	mysql/innodb_table_stats	33	9	13	Barracuda	Dynamic	0	Single
+18	mysql/plugin	33	5	2	Barracuda	Dynamic	0	Single
+35	mysql/server_cost	33	7	19	Barracuda	Dynamic	0	Single
+19	mysql/servers	33	12	3	Barracuda	Dynamic	0	Single
+32	mysql/slave_master_info	33	28	16	Barracuda	Dynamic	0	Single
+31	mysql/slave_relay_log_info	33	12	15	Barracuda	Dynamic	0	Single
+33	mysql/slave_worker_info	33	16	17	Barracuda	Dynamic	0	Single
+25	mysql/time_zone	33	5	9	Barracuda	Dynamic	0	Single
+28	mysql/time_zone_leap_second	33	5	12	Barracuda	Dynamic	0	Single
+24	mysql/time_zone_name	33	5	8	Barracuda	Dynamic	0	Single
+26	mysql/time_zone_transition	33	6	10	Barracuda	Dynamic	0	Single
+27	mysql/time_zone_transition_type	33	8	11	Barracuda	Dynamic	0	Single
+37	sys/sys_config	33	7	21	Barracuda	Dynamic	0	Single
+38	test/t1	33	4	23	Barracuda	Dynamic	0	Single
+include/assert.inc [Table t1 should be included in INNODB_TABLESPACES_ENCRYPTION yet - since it is not RK]
+insert t1 values (repeat('foobarsecret', 12));
+select * from t1;
+a
+foobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecret
+# 1. Alter from unencrypted to RK
+ALTER TABLE t1 encryption='KEYRING';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+SELECT * FROM t1;
+a
+foobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecret
+include/assert.inc [Table t1 should be the only one appearing in INNODB_TABLESPACES_ENCRYPTION]
+CREATE TABLE t2 (a varchar(255)) engine=innodb encryption='y';
+SHOW CREATE TABLE t2;
+Table	Create Table
+t2	CREATE TABLE `t2` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='y'
+INSERT t2 VALUES (repeat('foobarsecret', 12));
+include/assert.inc [Table t2 should not be included in INNODB_TABLESPACES_ENCRYPTION - since it is not RK]
+# 2. Alter from MK encryption to RK
+ALTER TABLE t2 encryption='KEYRING';
+SHOW CREATE TABLE t2;
+Table	Create Table
+t2	CREATE TABLE `t2` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+SELECT * FROM t2;
+a
+foobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecret
+include/assert.inc [Table t2 should be included in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERION 1 (encrypted)]
+# 3. Alter from RK to MK
+ALTER TABLE t1 encryption='Y';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='Y'
+SELECT * FROM t1;
+a
+foobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecretfoobarsecret
+include/assert.inc [Table t1 has been re_encrypted to Master key encryption - should disappear from INNODB_TABLESPACES_ENCRYPTION => thus only t2 should remain]
+# 4. Alter from MK to unencrypted
+ALTER TABLE t1 encryption='n';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='n'
+include/assert.inc [t1 should be marked as unencrypted in INNODB_TABLESPACES_ENCRYPTION]
+SELECT NAME, MIN_KEY_VERSION FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION WHERE MIN_KEY_VERSION;
+NAME	MIN_KEY_VERSION
+test/t2	1
+# 5. Alter from unencrypted to RK
+ALTER TABLE t1 ENCRYPTION='KEYRING';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+include/assert.inc [Table t1 should be included in INNODB_TABLESPACES_ENCRYPTION]
+# 6. Alter from RK to unencrypted
+ALTER TABLE t1 ENCRYPTION='n';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='n'
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION but with MIN_KEY_VERSION (0) UNENCRYPTED]
+# 7. Alter to RK INPLACE
+ALTER TABLE t1 ENCRYPTION='KEYRING', ALGORITHM=INPLACE;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED]
+# 8. Alter to UNENCRYPTED INPLACE
+ALTER TABLE t1 ENCRYPTION='N', ALGORITHM=INPLACE;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='N'
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (0) UNENCRYPTED]
+# 9. Alter ENCRYPTION_KEY_ID
+ALTER TABLE t1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=5;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=5
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =5]
+# 10. Alter ENCRYPTION_KEY_ID INPLACE
+ALTER TABLE t1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=6, ALGORITHM=INPLACE;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=6
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =6]
+ALTER TABLE t1 ENCRYPTION_KEY_ID=8;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=8
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =8]
+SELECT * FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION;
+SPACE	NAME	ENCRYPTION_SCHEME	KEYSERVER_REQUESTS	MIN_KEY_VERSION	CURRENT_KEY_VERSION	KEY_ROTATION_PAGE_NUMBER	KEY_ROTATION_MAX_PAGE_NUMBER	CURRENT_KEY_ID	ROTATING_OR_FLUSHING
+26	test/t2	1	0	1	1	NULL	NULL	0	0
+35	test/t1	1	0	1	1	NULL	NULL	8	0
+ALTER TABLE t1 ENCRYPTION_KEY_ID=9, ALGORITHM=INPLACE;
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=9
+SELECT * FROM INFORMATION_SCHEMA.INNODB_TABLESPACES_ENCRYPTION;
+SPACE	NAME	ENCRYPTION_SCHEME	KEYSERVER_REQUESTS	MIN_KEY_VERSION	CURRENT_KEY_VERSION	KEY_ROTATION_PAGE_NUMBER	KEY_ROTATION_MAX_PAGE_NUMBER	CURRENT_KEY_ID	ROTATING_OR_FLUSHING
+26	test/t2	1	0	1	1	NULL	NULL	0	0
+36	test/t1	1	0	1	1	NULL	NULL	9	0
+include/assert.inc [Table t1 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =9]
+# It should not be possible to alter table to Master Key encryption INPLACE
+ALTER TABLE t1 ENCRYPTION='Y', ALGORITHM=INPLACE;
+ERROR 0A000: ALGORITHM=INPLACE is not supported. Reason: Cannot alter encryption attribute by inplace algorithm.. Try ALGORITHM=COPY.
+# It should not be possible to decrypt with ENCRYPTION_KEY_ID set
+ALTER TABLE t1 ENCRYPTION='N' ENCRYPTION_KEY_ID=6;
+Warnings:
+Warning	140	InnoDB: Ignored ENCRYPTION_KEY_ID 6 when encryption is disabled.
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='N'
+ALTER TABLE t1 ENCRYPTION='N';
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='N'
+CREATE TABLE t3 (a varchar(255)) engine=innodb;
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+INSERT t3 VALUES (repeat('foobarsecret', 12));
+CREATE TABLE t_rk_with_encryption_key_id (a varchar(255)) engine=innodb ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=5;
+CREATE TABLE t_alter_encryption_key_id (a varchar(255)) engine=innodb;
+CREATE TABLE t_alter_to_rk (a varchar(255)) engine=innodb;
+ALTER TABLE t_alter_to_rk ENCRYPTION='KEYRING';
+ALTER TABLE t_alter_encryption_key_id ENCRYPTION_KEY_ID = 6;
+SHOW CREATE TABLE t_alter_encryption_key_id;
+Table	Create Table
+t_alter_encryption_key_id	CREATE TABLE `t_alter_encryption_key_id` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=6
+SHOW CREATE TABLE t_alter_to_rk;
+Table	Create Table
+t_alter_to_rk	CREATE TABLE `t_alter_to_rk` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+# Testing alters with innodb-encrypt-tables ONLINE_TO_KEYRING
+# restart:--innodb-encrypt-tables=ONLINE_TO_KEYRING --innodb-encryption-rotate-key-age=15 --innodb-encryption-threads=4
+# Check that tables' definitions are correct after the reset
+SHOW CREATE TABLE t1;
+Table	Create Table
+t1	CREATE TABLE `t1` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='N'
+SHOW CREATE TABLE t2;
+Table	Create Table
+t2	CREATE TABLE `t2` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+SHOW CREATE TABLE t_rk_with_encryption_key_id;
+Table	Create Table
+t_rk_with_encryption_key_id	CREATE TABLE `t_rk_with_encryption_key_id` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=5
+SHOW CREATE TABLE t_alter_to_rk;
+Table	Create Table
+t_alter_to_rk	CREATE TABLE `t_alter_to_rk` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION='KEYRING' ENCRYPTION_KEY_ID=0
+SHOW CREATE TABLE t_alter_encryption_key_id;
+Table	Create Table
+t_alter_encryption_key_id	CREATE TABLE `t_alter_encryption_key_id` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=6
+#Wait for all tables to get encrypted (apart from t1)
+# Alter ENCRYPTION_KEY_ID when t3 was encrypted with encryption thread
+ALTER TABLE t3 ENCRYPTION_KEY_ID=3;
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=3
+include/assert.inc [Table t3 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =3]
+# Alter ENCRYPTION_KEY_ID INPLACE when t3 was encrypted with encryption thread
+ALTER TABLE t3 ENCRYPTION_KEY_ID=4, ALGORITHM=INPLACE;
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=4
+include/assert.inc [Table t3 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =4]
+# Now decrypt t3. It should it should still be possible to change the ENCRYPTION_KEY_ID.
+SET GLOBAL innodb_encrypt_tables=ONLINE_FROM_KEYRING_TO_UNENCRYPTED;
+#Wait for all tables to get decrypted (apart from t2, t_rk_with_encryption_key_id, t_alter_to_rk)
+# Alter ENCRYPTION_KEY_ID of unencrypted table. The key_id 5 should be used during encryption with encryption
+# threads. However note that t3 was already encrypted with rotated threads.
+ALTER TABLE t3 ENCRYPTION_KEY_ID=5, ALGORITHM=INPLACE;
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=5
+include/assert.inc [Table t3 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (0 => UNECRYPTED) AND ENCRYPTED KEY_ID=5]
+# After the re-encryption t3 should get encrypted with key 5
+SET GLOBAL innodb_encrypt_tables=ONLINE_TO_KEYRING;
+#Wait for all tables to get encrypted (apart from t1)
+include/assert.inc [Table t3 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1) ENCRYPTED KEY_ID =5]
+SHOW CREATE TABLE t3;
+Table	Create Table
+t3	CREATE TABLE `t3` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=5
+# Testing if alter encryption_encryption_key_id works on tables which was not previously encrypted with KEYRING
+# i.e. on plain innodb tables.
+# Turn off encryption threads and encryption
+SET GLOBAL innodb_encryption_threads=0;
+SET GLOBAL innodb_encrypt_tables=ONLINE_FROM_KEYRING_TO_UNENCRYPTED;
+CREATE TABLE t4 (a varchar(255)) engine=innodb;
+SHOW CREATE TABLE t4;
+Table	Create Table
+t4	CREATE TABLE `t4` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+INSERT t4 VALUES (repeat('foobarsecret', 12));
+include/assert.inc [Table t4 should NOT appear in INNODB_TABLESPACES_ENCRYPTION]
+ALTER TABLE t4 ENCRYPTION_KEY_ID=6;
+SHOW CREATE TABLE t4;
+Table	Create Table
+t4	CREATE TABLE `t4` (
+  `a` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ENCRYPTION_KEY_ID=6
+include/assert.inc [Table t4 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (0 => UNENCRYPTED) AND ENCRYPTION_KEY_ID =6]
+# Encrypt all tables and check if t4 got encrypted with ENCRYPTION KEY 6
+SET GLOBAL innodb_encryption_threads=4;
+SET GLOBAL innodb_encrypt_tables=ONLINE_TO_KEYRING;
+#Wait for all tables to get encrypted (apart from t1)
+include/assert.inc [Table t4 should appear in INNODB_TABLESPACES_ENCRYPTION with MIN_KEY_VERSION (1 => ENCRYPTED) AND ENCRYPTION_KEY_ID =6]
+drop table t1,t2,t3,t4,t_rk_with_encryption_key_id,t_alter_to_rk,t_alter_encryption_key_id;

@@ -153,6 +153,26 @@ struct srv_stats_t {
 
 	/* Number of row log blocks decrypted */
 	ulint_ctr_64_t          n_rowlog_blocks_decrypted;
+
+	/** Number of times page 0 is read from tablespace */
+	ulint_ctr_64_t		page0_read;
+
+	/** Number of encryption_get_latest_key_version calls */
+	ulint_ctr_64_t		n_key_requests;
+
+	/** Number of log scrub operations */
+	//ulint_ctr_64_t		n_log_scrubs;
+
+	/** Number of spaces in keyrotation list */
+	ulint_ctr_64_t		key_rotation_list_length;
+
+	/** Number of log scrub operations */
+	ulint_ctr_64_t          n_log_scrubs;
+
+	/* Number of pages encrypted */
+	ulint_ctr_64_t          pages_encrypted;
+   	/* Number of pages decrypted */
+	ulint_ctr_64_t          pages_decrypted;
 };
 
 extern const char*	srv_main_thread_op_info;
@@ -290,6 +310,9 @@ extern const char* deprecated_undo_logs;
 
 /** Maximum size of undo tablespace. */
 extern unsigned long long	srv_max_undo_log_size;
+
+extern uint	srv_n_fil_crypt_threads;
+extern uint	srv_n_fil_crypt_threads_started;
 
 /** Rate at which UNDO records should be purged. */
 extern ulong	srv_purge_rseg_truncate_frequency;
@@ -516,6 +539,9 @@ extern bool	srv_buf_resize_thread_active;
 
 /* TRUE during the lifetime of the stats thread */
 extern ibool	srv_dict_stats_thread_active;
+
+/* TRUE if enable log scrubbing */
+extern my_bool  srv_scrub_log;
 
 extern ulong	srv_n_spin_wait_rounds;
 extern ulong	srv_n_free_tickets_to_enter;
@@ -1110,6 +1136,7 @@ struct export_var_t{
 	ulint innodb_page_size;			/*!< UNIV_PAGE_SIZE */
 	ulint innodb_pages_created;		/*!< buf_pool->stat.n_pages_created */
 	ulint innodb_pages_read;		/*!< buf_pool->stat.n_pages_read */
+	ulint innodb_page0_read;		/*!< srv_stats.page0_read */
 	ulint innodb_pages_written;		/*!< buf_pool->stat.n_pages_written */
 	trx_id_t innodb_purge_trx_id;
 	undo_no_t innodb_purge_undo_no;
@@ -1137,11 +1164,6 @@ struct export_var_t{
 						index lookups when freeing
 						file pages */
 #endif /* UNIV_DEBUG */
-	ib_uint64_t innodb_n_merge_blocks_encrypted;/*!< Number of merge blocks encrypted */
-	ib_uint64_t innodb_n_merge_blocks_decrypted;/*!< Number of merge blocks decrypted */
-	ib_uint64_t innodb_n_rowlog_blocks_encrypted;/*!< Number of row log blocks encrypted */
-	ib_uint64_t innodb_n_rowlog_blocks_decrypted;/*!< Number of row log blocks decrypted */
-
 	ulint innodb_sec_rec_cluster_reads;	/*!< srv_sec_rec_cluster_reads */
 	ulint innodb_sec_rec_cluster_reads_avoided; /*!< srv_sec_rec_cluster_reads_avoided */
 
@@ -1149,6 +1171,35 @@ struct export_var_t{
 
 	fragmentation_stats_t innodb_fragmentation_stats;/*!< Fragmentation
 						statistics */
+	int64_t innodb_pages_encrypted;      /*!< Number of pages
+						encrypted */
+	int64_t innodb_pages_decrypted;      /*!< Number of pages
+						decrypted */
+
+	/*!< Number of merge blocks encrypted */
+	int64_t innodb_n_merge_blocks_encrypted;
+	/*!< Number of merge blocks decrypted */
+	int64_t innodb_n_merge_blocks_decrypted;
+	/*!< Number of row log blocks encrypted */
+	int64_t innodb_n_rowlog_blocks_encrypted;
+	/*!< Number of row log blocks decrypted */
+	int64_t innodb_n_rowlog_blocks_decrypted;
+
+	ulint innodb_encryption_rotation_pages_read_from_cache;
+	ulint innodb_encryption_rotation_pages_read_from_disk;
+	ulint innodb_encryption_rotation_pages_modified;
+	ulint innodb_encryption_rotation_pages_flushed;
+	ulint innodb_encryption_rotation_estimated_iops;
+	int64_t innodb_encryption_key_requests;
+	int64_t innodb_key_rotation_list_length;
+
+        ulint innodb_scrub_page_reorganizations;
+        ulint innodb_scrub_page_splits;
+        ulint innodb_scrub_page_split_failures_underflow;
+        ulint innodb_scrub_page_split_failures_out_of_filespace;
+        ulint innodb_scrub_page_split_failures_missing_index;
+        ulint innodb_scrub_page_split_failures_unknown;
+        int64_t innodb_scrub_log;
 };
 
 /** Thread slot in the thread table.  */

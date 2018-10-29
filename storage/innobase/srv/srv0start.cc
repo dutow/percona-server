@@ -57,6 +57,7 @@ Created 2/16/1996 Heikki Tuuri
 #include "os0file.h"
 #include "os0thread.h"
 #include "fil0fil.h"
+#include "fil0crypt.h"
 #include "fsp0fsp.h"
 #include "rem0rec.h"
 #include "mtr0mtr.h"
@@ -204,6 +205,8 @@ mysql_pfs_key_t	srv_purge_thread_key;
 mysql_pfs_key_t	srv_log_tracking_thread_key;
 mysql_pfs_key_t	srv_worker_thread_key;
 #endif /* UNIV_PFS_THREAD */
+
+int unlock_keyrings(THD *thd);
 
 #ifdef HAVE_PSI_STAGE_INTERFACE
 /** Array of all InnoDB stage events for monitoring activities via
@@ -456,7 +459,8 @@ create_log_files(
 	fil_space_t*	log_space = fil_space_create(
 		"innodb_redo_log", SRV_LOG_SPACE_FIRST_ID,
 		fsp_flags_set_page_size(0, univ_page_size),
-		FIL_TYPE_LOG);
+		FIL_TYPE_LOG,
+                NULL);
 	ut_a(fil_validate());
 	ut_a(log_space != NULL);
 
@@ -736,7 +740,7 @@ srv_undo_tablespace_open(
 		flags = fsp_flags_init(
 			univ_page_size, false, false, false, false);
 		space = fil_space_create(
-			undo_name, space_id, flags, FIL_TYPE_TABLESPACE);
+			undo_name, space_id, flags, FIL_TYPE_TABLESPACE, NULL);
 
 		ut_a(fil_validate());
 		ut_a(space);
@@ -1368,6 +1372,10 @@ srv_shutdown_all_bg_threads()
 			if (srv_start_state_is_set(SRV_START_STATE_PURGE)) {
 				/* d. Wakeup purge threads. */
 				srv_purge_wakeup();
+			}
+
+			if (srv_n_fil_crypt_threads_started) {
+				os_event_set(fil_crypt_threads_event);
 			}
 		}
 
@@ -2256,7 +2264,7 @@ innobase_start_or_create_for_mysql(void)
 			"innodb_redo_log",
 			SRV_LOG_SPACE_FIRST_ID,
 			fsp_flags_set_page_size(0, univ_page_size),
-			FIL_TYPE_LOG);
+			FIL_TYPE_LOG, NULL);
 
 		ut_a(fil_validate());
 		ut_a(log_space);
@@ -2416,6 +2424,7 @@ files_checked:
 		{
 			/* Create the thread which prints InnoDB monitor
 			info */
+			srv_monitor_active = true;
 			os_thread_create(
 				srv_monitor_thread,
 				NULL, thread_ids + 4 + SRV_MAX_N_IO_THREADS);
@@ -2755,8 +2764,10 @@ files_checked:
 		os_thread_create(
 			lock_wait_timeout_thread,
 			NULL, thread_ids + 2 + SRV_MAX_N_IO_THREADS);
+		lock_sys->timeout_thread_active = true;
 
 		/* Create the thread which warns of long semaphore waits */
+		srv_error_monitor_active = true;
 		os_thread_create(
 			srv_error_monitor_thread,
 			NULL, thread_ids + 3 + SRV_MAX_N_IO_THREADS);
@@ -2939,18 +2950,25 @@ files_checked:
 		}
 
 		/* Create the buffer pool dump/load thread */
+		srv_buf_dump_thread_active = true;
 		os_thread_create(buf_dump_thread, NULL, NULL);
 
 		/* Create the dict stats gathering thread */
+		srv_dict_stats_thread_active = true;
 		os_thread_create(dict_stats_thread, NULL, NULL);
 
 		/* Create the thread that will optimize the FTS sub-system. */
 		fts_optimize_init();
 
+		fil_system_enter();
+		fil_crypt_threads_init();
+		fil_system_exit();
+
 		srv_start_state_set(SRV_START_STATE_STAT);
 	}
 
 	/* Create the buffer pool resize thread */
+	srv_buf_resize_thread_active = true;
 	os_thread_create(buf_resize_thread, NULL, NULL);
 
 	srv_was_started = TRUE;
@@ -3046,6 +3064,8 @@ innobase_shutdown_for_mysql(void)
 
 	if (!srv_read_only_mode) {
 		dict_stats_thread_deinit();
+		/* Shutdown key rotation threads */
+		fil_crypt_threads_cleanup();
 	}
 
 	/* This must be disabled before closing the buffer pool
@@ -3103,6 +3123,8 @@ innobase_shutdown_for_mysql(void)
 
 	srv_was_started = FALSE;
 	srv_start_has_been_called = FALSE;
+
+	unlock_keyrings(NULL);
 
 	return(DB_SUCCESS);
 }

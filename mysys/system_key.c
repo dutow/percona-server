@@ -23,9 +23,11 @@
    system key's name and system key's version.
 */
 const char* valid_percona_system_keys[] = {PERCONA_BINLOG_KEY_NAME, 
-                                           PERCONA_REDO_KEY_NAME};
+                                           PERCONA_REDO_KEY_NAME,
+					   PERCONA_INNODB_KEY_NAME};
 const size_t valid_percona_system_keys_size = array_elements(valid_percona_system_keys);
 
+// Only parse the latest key - from system_keys_container - do not parse keys from keys_container
 uchar* parse_system_key(const uchar *key, const size_t key_length, uint *key_version,
                         uchar **key_data, size_t *key_data_length)
 {
@@ -54,11 +56,9 @@ uchar* parse_system_key(const uchar *key, const size_t key_length, uint *key_ver
     my_free(version);
     return NULL; // conversion failed
   }
+  my_free(version);
 
   DBUG_ASSERT(ulong_key_version <= UINT_MAX); // sanity check
-  *key_version= (uint)ulong_key_version;
-
-  my_free(version);
 
   *key_data_length= key_length - (key_version_length + 1); // skip ':' after key version
   if (*key_data_length == 0)
@@ -70,5 +70,6 @@ uchar* parse_system_key(const uchar *key, const size_t key_length, uint *key_ver
     return NULL;
 
   memcpy(*key_data, key+key_version_length+1, *key_data_length); // skip ':' after key version
+  *key_version= (uint)ulong_key_version;
   return *key_data;
 }

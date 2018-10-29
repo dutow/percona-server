@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS t_encrypt;
 --enable_warnings
 # Create encryp table
 --error ER_CANNOT_FIND_KEY_IN_KEYRING
-CREATE TABLE t_encrypt(c1 INT, c2 char(20)) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE t_encrypt(c1 INT, c2 char(20)) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 # Uninstall keyring plugin whuch is not loaded yet
 --error ER_SP_DOES_NOT_EXIST
 eval UNINSTALL PLUGIN $KEYRING_PLUGIN_NAME;
@@ -54,12 +54,12 @@ CREATE DATABASE tde_db;
 SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 
-CREATE TABLE tde_db.t_encrypt(c4 JSON ,
-                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,
-                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,
+eval CREATE TABLE tde_db.t_encrypt(c4 JSON ,
+                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_a')) STORED,
+                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_b')) VIRTUAL,
                        c7 POINT NOT NULL,
                        spatial INDEX idx2 (c7)
-                       )  ENCRYPTION="Y" ENGINE = InnoDB;
+                       )  ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 
 SHOW CREATE TABLE tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt(c4,c7) VALUES('{ "key_a": 1, "key_b": 2, "key_c": 3 }',ST_GeomFromText('POINT(383293632 1754448)'));
@@ -123,7 +123,7 @@ SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 
 # Create a table with encryption
-CREATE TABLE tde_db.t_encrypt(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE tde_db.t_encrypt(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 --error ER_INVALID_ENCRYPTION_OPTION
 CREATE TABLE tde_db.t_encrypt_1(c1 INT, c2 char(20)) ENCRYPTION="Yes" ENGINE = InnoDB;
 CREATE TABLE tde_db.t_encrypt_1(c1 INT, c2 char(20)) ENCRYPTION="y" ENGINE = InnoDB;
@@ -185,12 +185,12 @@ USE tde_db;
 SET GLOBAL innodb_file_per_table = 0;
 SELECT @@innodb_file_per_table;
 --error ER_ILLEGAL_HA_CREATE_OPTION
-CREATE TABLE tde_db.t_encrypt(c4 JSON ,
-                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,
-                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,
+eval CREATE TABLE tde_db.t_encrypt(c4 JSON ,
+                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_a')) STORED,
+                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_b')) VIRTUAL,
                        c7 POINT NOT NULL,
                        spatial INDEX idx2 (c7)
-                       )  ENCRYPTION="Y" ENGINE = InnoDB;
+                       )  ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 
 SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
@@ -198,19 +198,19 @@ SELECT @@innodb_file_per_table;
 
 CREATE TABLESPACE s_alt1 ADD DATAFILE 's_alt1.ibd';
 --error ER_ILLEGAL_HA_CREATE_OPTION
-CREATE TABLE tde_db.t_encrypt (a int, b text) ENCRYPTION="Y" TABLESPACE=`s_alt1` ENGINE=InnoDB;
+eval CREATE TABLE tde_db.t_encrypt (a int, b text) ENCRYPTION="$encryption_type" TABLESPACE=`s_alt1` ENGINE=InnoDB;
 DROP TABLESPACE s_alt1;
 
 --error ER_ILLEGAL_HA_CREATE_OPTION
-CREATE TEMPORARY TABLE tde_db.t_encrypt (a int, b text) ENCRYPTION="Y" ENGINE=InnoDB;
+eval CREATE TEMPORARY TABLE tde_db.t_encrypt (a int, b text) ENCRYPTION="$encryption_type" ENGINE=InnoDB;
 
 # Now error/warning shown
 --error ER_ILLEGAL_HA
-CREATE TABLE tde_db.t_encrypt_myisam (a int, b text) ENCRYPTION="Y" ENGINE=MyISAM;
+eval CREATE TABLE tde_db.t_encrypt_myisam (a int, b text) ENCRYPTION="$encryption_type" ENGINE=MyISAM;
 
 # Create a table with encryption and different row format
 DELIMITER |;
-CREATE PROCEDURE tde_db.row_format_t_encrypt(row_form VARCHAR(1000))
+CREATE PROCEDURE tde_db.row_format_t_encrypt(row_form VARCHAR(1000), encryption_type VARCHAR(20))
 begin
         declare i int default 1;
         declare has_error int default 0;
@@ -218,7 +218,7 @@ begin
 
         DROP TABLE IF EXISTS tde_db.t_encrypt;
 
-        SET @sql_text = CONCAT('CREATE TABLE tde_db.t_encrypt  ('," c2 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,c7 POINT NOT NULL,spatial INDEX idx2 (c7) ) ", ' ENCRYPTION="Y" ',  row_form ,' ENGINE=InnoDB');
+SET @sql_text = CONCAT('CREATE TABLE tde_db.t_encrypt  ('," c2 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,c7 POINT NOT NULL,spatial INDEX idx2 (c7) ) ", ' ENCRYPTION="', encryption_type ,'" ',  row_form ,' ENGINE=InnoDB');
         PREPARE stmt FROM @sql_text;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt;
@@ -247,7 +247,7 @@ DELIMITER ;|
 
 
 
-call tde_db.row_format_t_encrypt(" ROW_FORMAT=DYNAMIC ");
+eval call tde_db.row_format_t_encrypt(" ROW_FORMAT=DYNAMIC ", "$encryption_type");
 
 --echo # restart with keying
 --let $restart_parameters="$KEYRING_RESTART_PARAM"
@@ -258,7 +258,7 @@ SELECT COUNT(*) FROM tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt(c3,c4,c7) SELECT c3,c4,c7 FROM tde_db.t_encrypt;
 SELECT COUNT(*) FROM tde_db.t_encrypt;
 
-call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPACT ");
+eval call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPACT ", "$encryption_type");
 --echo # restart with keying
 --let $restart_parameters="$KEYRING_RESTART_PARAM"
 --let $restart_hide_args= 1
@@ -268,7 +268,7 @@ SELECT COUNT(*) FROM tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt(c3,c4,c7) SELECT c3,c4,c7 FROM tde_db.t_encrypt;
 SELECT COUNT(*) FROM tde_db.t_encrypt;
 
-call tde_db.row_format_t_encrypt(" ROW_FORMAT=REDUNDANT ");
+eval call tde_db.row_format_t_encrypt(" ROW_FORMAT=REDUNDANT ", "$encryption_type");
 --echo # restart with keying
 --let $restart_parameters="$KEYRING_RESTART_PARAM"
 --let $restart_hide_args= 1
@@ -278,7 +278,7 @@ SELECT COUNT(*) FROM tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt(c3,c4,c7) SELECT c3,c4,c7 FROM tde_db.t_encrypt;
 SELECT COUNT(*) FROM tde_db.t_encrypt;
 
-call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPRESSED " );
+eval call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPRESSED ", "$encryption_type");
 --echo # restart with keying
 --let $restart_parameters="$KEYRING_RESTART_PARAM"
 --let $restart_hide_args= 1
@@ -288,7 +288,7 @@ SELECT COUNT(*) FROM tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt(c3,c4,c7) SELECT c3,c4,c7 FROM tde_db.t_encrypt;
 SELECT COUNT(*) FROM tde_db.t_encrypt;
 
-call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPRESSED  KEY_BLOCK_SIZE=4 ");
+eval call tde_db.row_format_t_encrypt(" ROW_FORMAT=COMPRESSED  KEY_BLOCK_SIZE=4 ", "$encryption_type");
 --echo # restart with keying
 --let $restart_parameters="$KEYRING_RESTART_PARAM"
 --let $restart_hide_args= 1
@@ -303,7 +303,7 @@ SELECT COUNT(*) FROM tde_db.t_encrypt;
 
 --echo # Create partition table
 DROP TABLE tde_db.t_encrypt;
-CREATE TABLE tde_db.t_encrypt  (c2 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL ) ENCRYPTION="Y"  ENGINE=InnoDB PARTITION BY RANGE (c2) (PARTITION p1 VALUES LESS THAN (4),PARTITION p2 VALUES LESS THAN (8),PARTITION p3 VALUES LESS THAN (1000))  ;
+eval CREATE TABLE tde_db.t_encrypt  (c2 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_b')) VIRTUAL ) ENCRYPTION="$encryption_type"  ENGINE=InnoDB PARTITION BY RANGE (c2) (PARTITION p1 VALUES LESS THAN (4),PARTITION p2 VALUES LESS THAN (8),PARTITION p3 VALUES LESS THAN (1000))  ;
 SHOW CREATE TABLE tde_db.t_encrypt;
 
 INSERT INTO tde_db.t_encrypt(c3,c4) VALUES (REPEAT('a',200),'{ "key_a": 1, "key_b": 2, "key_c": 3 }');
@@ -351,14 +351,14 @@ SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 
 # Create a table with encryption
-CREATE TABLE tde_db.t_encrypt(c2 INT NOT NULL PRIMARY KEY,
+eval CREATE TABLE tde_db.t_encrypt(c2 INT NOT NULL PRIMARY KEY,
                        c3 CHAR(255) Default 'No text',
                        c4 JSON ,
-                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,
-                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,
+                       c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_a')) STORED,
+                       c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_b')) VIRTUAL,
                        c7 POINT NOT NULL,
                        spatial INDEX idx2 (c7)
-                       ) ENCRYPTION="Y"  ENGINE = InnoDB;
+                       ) ENCRYPTION="$encryption_type"  ENGINE = InnoDB;
 
 DELIMITER |;
 CREATE PROCEDURE tde_db.populate_t_encrypt()
@@ -398,7 +398,7 @@ begin
                 set i = i + 1;
         end while;
 end|
-CREATE PROCEDURE tde_db.create_encrypt_table(encrypt VARCHAR(5))
+CREATE PROCEDURE tde_db.create_encrypt_table(encrypt VARCHAR(20))
 begin
         declare i int default 1;
         declare has_error int default 0;
@@ -435,7 +435,7 @@ send call tde_db.rotate_master_key();
 --enable_query_log
 --echo # In connection con7 - Running "create table"
 connect (con7,localhost,root,,);
-send call tde_db.create_encrypt_table("Y");
+send_eval call tde_db.create_encrypt_table("$encryption_type");
 --enable_query_log
 --echo # In connection con8 - Running "create table"
 connect (con8,localhost,root,,);
@@ -534,7 +534,7 @@ SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 #
 # Create a table with encryption
-CREATE TABLE tde_db.t_encrypt(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE tde_db.t_encrypt(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 SHOW CREATE TABLE tde_db.t_encrypt;
 INSERT INTO tde_db.t_encrypt VALUES(0, "aaaaa",repeat('A', 20000));
 INSERT INTO tde_db.t_encrypt select * from tde_db.t_encrypt;
@@ -568,7 +568,7 @@ SELECT c1,c2,right(c3, 20) FROM tde_db.t_encrypt LIMIT 10;
 --error 1227
 ALTER INSTANCE ROTATE INNODB MASTER KEY;
 --error 1142
-CREATE TABLE tde_db.t_encrypt_np(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE tde_db.t_encrypt_np(c1 INT, c2 char(20), c3 BLOB) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 SELECT c1,c2,right(c3, 20) FROM tde_db.t_encrypt LIMIT 10;
 disconnect con2;
 --echo # In connection default
@@ -611,12 +611,12 @@ SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
 
 # Create a table with encryption
-CREATE TABLE tde_db.t_encrypt(c1 INT NOT NULL AUTO_INCREMENT PRIMARY KEY, c2 char(100), c3 BLOB , FULLTEXT INDEX `idx1` (c2)) ENCRYPTION="Y" ENGINE = InnoDB;
-CREATE TABLE tde_db.t_encrypt1(c11 INT , c22 char(100), c33 BLOB , FULLTEXT INDEX `idx1` (c22)) ENCRYPTION="Y" ENGINE = InnoDB;
+eval CREATE TABLE tde_db.t_encrypt(c1 INT NOT NULL AUTO_INCREMENT PRIMARY KEY, c2 char(100), c3 BLOB , FULLTEXT INDEX `idx1` (c2)) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
+eval CREATE TABLE tde_db.t_encrypt1(c11 INT , c22 char(100), c33 BLOB , FULLTEXT INDEX `idx1` (c22)) ENCRYPTION="$encryption_type" ENGINE = InnoDB;
 SHOW CREATE TABLE tde_db.t_encrypt;
 
-CREATE TABLE tde_db.t_encrypt2 (f1 INT PRIMARY KEY, f2 CHAR(100),
-   FOREIGN KEY (f1) REFERENCES tde_db.t_encrypt(c1) ON UPDATE CASCADE) ENCRYPTION="Y" ENGINE=InnoDB;
+eval CREATE TABLE tde_db.t_encrypt2 (f1 INT PRIMARY KEY, f2 CHAR(100),
+   FOREIGN KEY (f1) REFERENCES tde_db.t_encrypt(c1) ON UPDATE CASCADE) ENCRYPTION="$encryption_type" ENGINE=InnoDB;
 
 
 DELIMITER |;
@@ -686,7 +686,7 @@ DROP TABLE IF EXISTS tde_db.t_encrypt;
 let $innodb_file_per_table = `SELECT @@innodb_file_per_table`;
 SET GLOBAL innodb_file_per_table = 1;
 SELECT @@innodb_file_per_table;
-CREATE TABLE tde_db.t_encrypt  (c2 INT NOT NULL AUTO_INCREMENT ,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'$.key_b')) VIRTUAL,c7 POINT NOT NULL,spatial INDEX idx2 (c7) , PRIMARY KEY (c2,c3(100))) ENCRYPTION="Y" ENGINE=InnoDB;
+eval CREATE TABLE tde_db.t_encrypt  (c2 INT NOT NULL AUTO_INCREMENT ,c3 VARCHAR(255), c4 JSON ,c5 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_a')) STORED,c6 INT GENERATED ALWAYS AS (JSON_EXTRACT(c4,'\$.key_b')) VIRTUAL,c7 POINT NOT NULL,spatial INDEX idx2 (c7) , PRIMARY KEY (c2,c3(100))) ENCRYPTION="$encryption_type" ENGINE=InnoDB;
 
 DELIMITER |;
 CREATE PROCEDURE tde_db.txn_t_encrypt()

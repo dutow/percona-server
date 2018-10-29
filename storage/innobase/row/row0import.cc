@@ -122,7 +122,8 @@ struct row_import {
 		m_n_indexes(0),
 		m_indexes(NULL),
 		m_missing(true),
-		m_cfp_missing(true)	{ }
+		m_cfp_missing(true),
+		m_is_keyring_encrypted(false) { }
 
 	~row_import() UNIV_NOTHROW;
 
@@ -220,6 +221,8 @@ struct row_import {
 
 	bool		m_cfp_missing;		/*!< true if a .cfp file was
 						found and was readable */
+
+	bool		m_is_keyring_encrypted;
 };
 
 /** Use the page cursor to iterate over records in a block. */
@@ -2154,7 +2157,7 @@ row_import_discard_changes(
 		index->space = FIL_NULL;
 	}
 
-	table->ibd_file_missing = TRUE;
+	table->set_file_unreadable();
 
 	fil_close_tablespace(trx, table->space);
 }
@@ -3113,6 +3116,9 @@ row_import_read_meta_data(
 	case IB_EXPORT_CFG_VERSION_V1:
 
 		return(row_import_read_v1(file, thd, &cfg));
+        case IB_EXPORT_CFG_VERSION_V1_WITH_RK:
+                cfg.m_is_keyring_encrypted = true;
+		return(row_import_read_v1(file, thd, &cfg));
 	default:
 		ib_errf(thd, IB_LOG_LEVEL_ERROR, ER_IO_READ_ERROR,
 			"Unsupported meta-data version number (%lu),"
@@ -3575,7 +3581,7 @@ row_import_for_mysql(
 
 	ut_a(table->space);
 	ut_ad(prebuilt->trx);
-	ut_a(table->ibd_file_missing);
+	ut_a(table->file_unreadable);
 
 	ibuf_delete_for_discarded_space(table->space);
 
@@ -3715,7 +3721,7 @@ row_import_for_mysql(
 
 		/* If table is set to encrypted, but can't find
 		cfp file, then return error. */
-		if (cfg.m_cfp_missing== true
+		if (cfg.m_cfp_missing== true && !cfg.m_is_keyring_encrypted
 		    && ((space_flags != 0
 			 && FSP_FLAGS_GET_ENCRYPTION(space_flags))
 			|| dict_table_is_encrypted(table))) {
@@ -3771,10 +3777,13 @@ row_import_for_mysql(
 			table_name, sizeof(table_name),
 			table->name.m_name);
 
-		ib_errf(trx->mysql_thd, IB_LOG_LEVEL_ERROR,
-			ER_INTERNAL_ERROR,
-			"Cannot reset LSNs in table %s : %s",
-			table_name, ut_strerr(err));
+
+		if (err != DB_DECRYPTION_FAILED) {
+			ib_errf(trx->mysql_thd, IB_LOG_LEVEL_ERROR,
+				ER_INTERNAL_ERROR,
+				"Cannot reset LSNs in table %s : %s",
+				table_name, ut_strerr(err));
+                }
 
 		return(row_import_cleanup(prebuilt, trx, err));
 	}
@@ -3815,13 +3824,28 @@ row_import_for_mysql(
 	fil_space_set_imported() to declare it a persistent tablespace. */
 
 	ulint	fsp_flags = dict_tf_to_fsp_flags(table->flags, false);
-	if (table->encryption_key != NULL) {
+	if (table->encryption_key != NULL || cfg.m_is_keyring_encrypted) {
 		fsp_flags |= FSP_FLAGS_MASK_ENCRYPTION;
 	}
 
+	Keyring_encryption_info keyring_encryption_info;
+
 	err = fil_ibd_open(
 		true, true, FIL_TYPE_IMPORT, table->space,
-		fsp_flags, table->name.m_name, filepath);
+		fsp_flags, table->name.m_name, filepath, keyring_encryption_info);
+
+	if (err == DB_SUCCESS && cfg.m_is_keyring_encrypted &&
+		(!keyring_encryption_info.page0_has_crypt_data || !FSP_FLAGS_GET_ENCRYPTION(fsp_flags))) {
+		ut_ad(!keyring_encryption_info.is_encryption_in_progress());	// it should not be possible to FLUSH FOR EXPORT when encryption
+									// is in progress
+		ib_errf(trx->mysql_thd, IB_LOG_LEVEL_ERROR,
+		ER_TABLE_SCHEMA_MISMATCH,
+		"Table is marked as encrypted with KEYRING in cfg file, but there"
+		" is no KEYRING encryption information in tablespace header"
+		" Please make sure that ibd and cfg files are match");
+
+		err = DB_ERROR;
+	} 
 
 	DBUG_EXECUTE_IF("ib_import_open_tablespace_failure",
 			err = DB_TABLESPACE_NOT_FOUND;);
@@ -3840,9 +3864,9 @@ row_import_for_mysql(
 
 	/* For encrypted table, set encryption information. */
 	if (dict_table_is_encrypted(table)) {
-
 		err = fil_set_encryption(table->space,
-					 Encryption::AES,
+					 cfg.m_is_keyring_encrypted ? Encryption::KEYRING
+								    : Encryption::AES,
 					 table->encryption_key,
 					 table->encryption_iv);
 	}
@@ -3944,7 +3968,7 @@ row_import_for_mysql(
 	ib::info() << "Phase IV - Flush complete";
 	fil_space_set_imported(prebuilt->table->space);
 
-	if (dict_table_is_encrypted(table)) {
+	if (dict_table_is_encrypted(table) && !cfg.m_is_keyring_encrypted) {
 		fil_space_t*	space;
 		mtr_t		mtr;
 		byte		encrypt_info[ENCRYPTION_INFO_SIZE_V2];
@@ -3985,7 +4009,7 @@ row_import_for_mysql(
 		return(row_import_error(prebuilt, trx, err));
 	}
 
-	table->ibd_file_missing = false;
+	table->set_file_readable();
 	table->flags2 &= ~DICT_TF2_DISCARDED;
 
 	/* Set autoinc value read from cfg file. The value is set to zero

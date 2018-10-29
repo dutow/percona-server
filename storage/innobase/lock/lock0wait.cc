@@ -562,7 +562,6 @@ DECLARE_THREAD(lock_wait_timeout_thread)(
 	pfs_register_thread(srv_lock_timeout_thread_key);
 #endif /* UNIV_PFS_THREAD */
 
-	lock_sys->timeout_thread_active = true;
 
 	do {
 		srv_slot_t*	slot;

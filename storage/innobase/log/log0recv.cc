@@ -69,6 +69,9 @@ bool	recv_replay_file_ops	= true;
 #include "fut0lst.h"
 #endif /* !UNIV_HOTBACKUP */
 
+
+#include "fil0crypt.h"
+
 /** Log records are stored in the hash table in chunks at most of this size;
 this must be less than UNIV_PAGE_SIZE as it is stored in the buffer pool */
 #define RECV_DATA_BLOCK_SIZE	(MEM_MAX_ALLOC_IN_BUF - sizeof(recv_data_t))
@@ -266,6 +269,8 @@ fil_name_process(
 			/* For encrypted tablespace, set key and iv. */
 			if (FSP_FLAGS_GET_ENCRYPTION(space->flags)
 			    && recv_sys->encryption_list != NULL) {
+
+				ut_ad(space->crypt_data == NULL);
 				dberr_t				err;
 				encryption_list_t::iterator	it;
 
@@ -436,7 +441,7 @@ fil_name_parse(
 		ut_ad(0); // the caller checked this
 	case MLOG_FILE_NAME:
 		if (corrupt) {
-			recv_sys->found_corrupt_log = true;
+			recv_sys->set_corrupt_log();
 			break;
 		}
 
@@ -445,7 +450,7 @@ fil_name_parse(
 		break;
 	case MLOG_FILE_DELETE:
 		if (corrupt) {
-			recv_sys->found_corrupt_log = true;
+			recv_sys->set_corrupt_log();
 			break;
 		}
 
@@ -457,7 +462,7 @@ fil_name_parse(
 		break;
 	case MLOG_FILE_RENAME2:
 		if (corrupt) {
-			recv_sys->found_corrupt_log = true;
+			recv_sys->set_corrupt_log();
 		}
 
 		/* The new name follows the old name. */
@@ -480,7 +485,7 @@ fil_name_parse(
 			|| !memchr(new_name, OS_PATH_SEPARATOR, new_len);
 
 		if (corrupt) {
-			recv_sys->found_corrupt_log = true;
+			recv_sys->set_corrupt_log();
 			break;
 		}
 
@@ -633,7 +638,7 @@ fil_name_parse(
 	byte*	end_ptr = ptr + len;
 
 	if (corrupt) {
-		recv_sys->found_corrupt_log = true;
+		recv_sys->set_corrupt_log();
 		return(end_ptr);
 	}
 
@@ -705,7 +710,9 @@ fil_name_parse(
 				dberr_t ret = fil_ibd_create(
 					space_id, tablespace_name.c_str(),
 					abs_file_path.c_str(),
-					flags, FIL_IBD_FILE_INITIAL_SIZE);
+					flags, FIL_IBD_FILE_INITIAL_SIZE,
+					FIL_ENCRYPTION_DEFAULT,
+					0);
 
 				if (ret != DB_SUCCESS) {
 					ib::fatal() << "Could not create the"
@@ -741,7 +748,7 @@ fil_name_parse(
 			|| !memchr(new_table_name, OS_PATH_SEPARATOR, new_len);
 
 		if (corrupt) {
-			recv_sys->found_corrupt_log = true;
+			recv_sys->set_corrupt_log();
 			break;
 		}
 
@@ -830,6 +837,9 @@ recv_sys_close(void)
 		ut_free(recv_sys->buf);
 		ut_free(recv_sys->last_block_buf_start);
 
+		/* Call the destructor for recv_sys_t::dblwr member */
+		recv_sys->dblwr.~recv_dblwr_t();
+
 		mutex_free(&recv_sys->mutex);
 
 		ut_free(recv_sys);
@@ -864,6 +874,10 @@ recv_sys_mem_free(void)
 #endif /* !UNIV_HOTBACKUP */
 		ut_free(recv_sys->buf);
 		ut_free(recv_sys->last_block_buf_start);
+
+		/* Call the destructor for recv_sys_t::dblwr member */
+		recv_sys->dblwr.~recv_dblwr_t();
+
 		ut_free(recv_sys);
 		recv_sys = NULL;
 	}
@@ -1504,13 +1518,15 @@ byte*
 fil_write_encryption_parse(
 	byte*		ptr,
 	const byte*	end,
-	ulint		space_id)
+	ulint		space_id,
+	ulint           len)
 {
 	fil_space_t*	space;
-	ulint		offset;
-	ulint		len;
+	//ulint		offset;
+	//ulint		len;
 	byte*		key = NULL;
 	byte*		iv = NULL;
+//        ulint           key_version = 0;
 	bool		is_new = false;
 
 	space = fil_space_get(space_id);
@@ -1528,6 +1544,7 @@ fil_write_encryption_parse(
 			if (it->space_id == space_id) {
 				key = it->key;
 				iv = it->iv;
+//                                key_version = it->key_version;
 			}
 		}
 
@@ -1536,6 +1553,7 @@ fil_write_encryption_parse(
 					ENCRYPTION_KEY_LEN));
 			iv = static_cast<byte*>(ut_malloc_nokey(
 					ENCRYPTION_KEY_LEN));
+//                        key_version = 0;
 			is_new = true;
 		}
 	} else {
@@ -1543,20 +1561,9 @@ fil_write_encryption_parse(
 		iv = space->encryption_iv;
 	}
 
-	offset = mach_read_from_2(ptr);
-	ptr += 2;
-	len = mach_read_from_2(ptr);
-
-	ptr += 2;
-	if (end < ptr + len) {
-		return(NULL);
-	}
-
-	if (offset >= UNIV_PAGE_SIZE
-	    || len + offset > UNIV_PAGE_SIZE
-	    || (len != ENCRYPTION_INFO_SIZE_V1
+	if  ((len != ENCRYPTION_INFO_SIZE_V1
 		&& len != ENCRYPTION_INFO_SIZE_V2)) {
-		recv_sys->found_corrupt_log = TRUE;
+		recv_sys->set_corrupt_log();
 		return(NULL);
 	}
 
@@ -1567,8 +1574,9 @@ fil_write_encryption_parse(
 #endif
 	if (!fsp_header_decode_encryption_info(key,
 					       iv,
+//                                               &key_version,
 					       ptr)) {
-		recv_sys->found_corrupt_log = TRUE;
+		recv_sys->set_corrupt_log();
 		ib::warn() << "Encryption information"
 			<< " in the redo log of space "
 			<< space_id << " is invalid";
@@ -1587,6 +1595,7 @@ fil_write_encryption_parse(
 			info.space_id = space_id;
 			info.key = key;
 			info.iv = iv;
+//                        info.key_version = key_version;
 
 			recv_sys->encryption_list->push_back(info);
 		}
@@ -1705,17 +1714,56 @@ recv_parse_or_apply_log_rec_body(
 		return(ptr + 8);
 	case MLOG_TRUNCATE:
 		return(truncate_t::parse_redo_entry(ptr, end_ptr, space_id));
-	case MLOG_WRITE_STRING:
+        case MLOG_WRITE_STRING: //TODO:Robert: This was added by Harin, it is reusing MLOG_WRITE_STRING, I am not sure how it is known
+                // that space is encrypted
 		/* For encrypted tablespace, we need to get the
 		encryption key information before the page 0 is recovered.
 	        Otherwise, redo will not find the key to decrypt
 		the data pages. */
-		if (page_no == 0 && !is_system_tablespace(space_id)
-		    && !apply) {
+		//if (page_no == 0 && !is_system_tablespace(space_id)
+		    //&& !apply) {
+
+                if (page_no == 0 && !apply) {
+
+                   ulint offset = mach_read_from_2(ptr);
+		   ptr += 2;
+	           ulint len = mach_read_from_2(ptr);
+                   ptr += 2;
+                   if (end_ptr < ptr + len)
+                     return NULL;
+
+                   if (memcmp(ptr, ENCRYPTION_KEY_MAGIC_V1,
+		              ENCRYPTION_MAGIC_SIZE) == 0 ||
+                       memcmp(ptr, ENCRYPTION_KEY_MAGIC_V2,
+		              ENCRYPTION_MAGIC_SIZE) == 0) {
+ 
+                        ut_ad(!is_system_tablespace(space_id));
+                        if (is_system_tablespace(space_id))
+                        {
+                          recv_sys->set_corrupt_log();
+                          return NULL;
+                        }
+
+                        // TODO:Move it back to fil_write_encryption_parser?
+                        if (offset >= UNIV_PAGE_SIZE
+                             || len + offset > UNIV_PAGE_SIZE)
+                        {
+                          recv_sys->set_corrupt_log();
+                          return NULL;
+                        }
+
 			return(fil_write_encryption_parse(ptr,
 							  end_ptr,
-							  space_id));
-		}
+							  space_id,
+                                                          len));
+                   } else if (memcmp(ptr, ENCRYPTION_KEY_MAGIC_PS_V1,
+                                    ENCRYPTION_MAGIC_SIZE) == 0)
+                   {
+                        //dberr_t err;
+                        ptr = const_cast<byte*>(fil_parse_write_crypt_data(ptr, end_ptr, block, len));
+                        return ptr;
+                  }
+                }
 		break;
 
 	default:
@@ -1795,6 +1843,8 @@ recv_parse_or_apply_log_rec_body(
 				redo log been written with something
 				older than InnoDB Plugin 1.0.4. */
 				ut_ad(0
+				      /* fil_crypt_rotate_page() writes this */
+				      || offs == FIL_PAGE_SPACE_ID
 				      || offs == IBUF_TREE_SEG_HEADER
 				      + IBUF_HEADER + FSEG_HDR_SPACE
 				      || offs == IBUF_TREE_SEG_HEADER
@@ -2066,9 +2116,18 @@ recv_parse_or_apply_log_rec_body(
 				ptr, end_ptr, page, page_zip, index);
 		}
 		break;
+        //case MLOG_FILE_WRITE_CRYPT_DATA: // TODO:Robert I need to try to merge it with how Oracle is reusing MLOG_WRITE_STRING
+                                         //// TODO:It is added after create table
+		//dberr_t err;
+		//ptr = const_cast<byte*>(fil_parse_write_crypt_data(ptr, end_ptr, block, &err));
+
+		//if (err != DB_SUCCESS) {
+			//recv_sys->set_corrupt_log();
+		//}
+		//break;
 	default:
 		ptr = NULL;
-		recv_sys->found_corrupt_log = true;
+		recv_sys->set_corrupt_log();
 	}
 
 	if (index) {
@@ -2588,8 +2647,12 @@ loop:
 	mutex_enter(&(recv_sys->mutex));
 
 	if (recv_sys->apply_batch_on) {
-
+		bool abort = recv_sys->found_corrupt_log;
 		mutex_exit(&(recv_sys->mutex));
+
+		if (abort) {
+			return;
+		}
 
 		os_thread_sleep(500000);
 
@@ -2685,8 +2748,13 @@ loop:
 	/* Wait until all the pages have been processed */
 
 	while (recv_sys->n_addrs != 0) {
+                bool abort = recv_sys->found_corrupt_log;
 
 		mutex_exit(&(recv_sys->mutex));
+
+		if (abort) {
+			return;
+		}
 
 		os_thread_sleep(500000);
 
@@ -2959,7 +3027,7 @@ recv_parse_log_rec(
 	case MLOG_MULTI_REC_END | MLOG_SINGLE_REC_FLAG:
 	case MLOG_DUMMY_RECORD | MLOG_SINGLE_REC_FLAG:
 	case MLOG_CHECKPOINT | MLOG_SINGLE_REC_FLAG:
-		recv_sys->found_corrupt_log = true;
+		recv_sys->set_corrupt_log();
 		return(0);
 	}
 
@@ -3262,7 +3330,7 @@ loop:
 			if (recv_sys->found_corrupt_log
 			    || type == MLOG_CHECKPOINT
 			    || (*ptr & MLOG_SINGLE_REC_FLAG)) {
-				recv_sys->found_corrupt_log = true;
+				recv_sys->set_corrupt_log();
 				recv_report_corrupt_log(
 					ptr, type, space, page_no);
 				return(true);
@@ -3649,7 +3717,7 @@ recv_scan_log_recs(
 				ib::error() << "Log parsing buffer overflow."
 					" Recovery may have failed!";
 
-				recv_sys->found_corrupt_log = true;
+				recv_sys->set_corrupt_log();
 
 #ifndef UNIV_HOTBACKUP
 				if (!srv_force_recovery) {
@@ -4096,7 +4164,7 @@ recv_recovery_from_checkpoint_start(
 		break;
 	default:
 		ut_ad(0);
-		recv_sys->found_corrupt_log = true;
+		recv_sys->set_corrupt_log();
 		log_mutex_exit();
 		return(DB_ERROR);
 	}
@@ -4560,7 +4628,10 @@ recv_dblwr_t::decrypt_sys_dblwr_pages()
 	decrypt_request.encryption_key(
 			space->encryption_key,
 			space->encryption_klen,
-			space->encryption_iv);
+			false,
+			space->encryption_iv,
+                        0, 0, NULL, NULL);
+
 	decrypt_request.encryption_algorithm(
 		Encryption::AES);
 
@@ -4755,6 +4826,9 @@ get_mlog_string(mlog_id_t type)
 
 	case MLOG_TRUNCATE:
 		return("MLOG_TRUNCATE");
+
+        //case MLOG_FILE_WRITE_CRYPT_DATA:
+		//return("MLOG_FILE_WRITE_CRYPT_DATA");
 	}
 	DBUG_ASSERT(0);
 	return(NULL);
