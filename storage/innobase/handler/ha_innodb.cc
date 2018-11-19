@@ -3909,6 +3909,8 @@ innobase_fix_tablespaces_empty_uuid()
 		return(false);
 	}
 
+	log_enable_encryption_if_set();
+
 	/* We only need to handle the case when an encrypted tablespace
 	is created at startup. If it is 0, there is no encrypted tablespace,
 	If it is > 1, it means we already have fixed the UUID */
