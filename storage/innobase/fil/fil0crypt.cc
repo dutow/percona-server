@@ -2889,6 +2889,48 @@ fil_space_crypt_get_status(
 	}
 }
 
+
+/*********************************************************************
+ Get scrub status for a space (used by information_schema)
+
+ @param[in]     space           Tablespace
+ @param[out]    status          Scrub status */
+
+        void
+fil_space_get_scrub_status(
+                const fil_space_t*                      space,
+                struct fil_space_scrub_status_t*        status)
+{
+        memset(status, 0, sizeof(*status));
+
+        fil_space_crypt_t* crypt_data = space->crypt_data;
+
+        status->space = space->id;
+
+        if (crypt_data != NULL) {
+                status->compressed = FSP_FLAGS_GET_ZIP_SSIZE(space->flags) > 0;
+                mutex_enter(&crypt_data->mutex);
+                status->last_scrub_completed =
+                        crypt_data->rotate_state.scrubbing.last_scrub_completed;
+                if (crypt_data->rotate_state.active_threads > 0 &&
+                    crypt_data->rotate_state.scrubbing.is_active) {
+                        status->scrubbing = true;
+                        status->current_scrub_started =
+                                crypt_data->rotate_state.start_time;
+                        status->current_scrub_active_threads =
+                                crypt_data->rotate_state.active_threads;
+                        status->current_scrub_page_number =
+                                crypt_data->rotate_state.next_offset;
+                        status->current_scrub_max_page_number =
+                                crypt_data->rotate_state.max_offset;
+                }
+
+                mutex_exit(&crypt_data->mutex);
+        }
+}
+
+
+
 /*********************************************************************
 Return crypt statistics
 @param[out]	stat		Crypt statistics */

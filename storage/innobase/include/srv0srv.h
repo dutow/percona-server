@@ -169,6 +169,9 @@ struct srv_stats_t {
   
   /* Number of pages decrypted */
   ulint_ctr_64_t          pages_decrypted;
+
+/** Number of log scrub operations */
+ulint_ctr_64_t          n_log_scrubs;
 };
 
 struct Srv_threads {
@@ -1196,6 +1199,14 @@ struct export_var_t {
   ulint innodb_encryption_rotation_estimated_iops;
   int64_t innodb_encryption_key_requests;
   int64_t innodb_key_rotation_list_length;
+
+        ulint innodb_scrub_page_reorganizations;
+        ulint innodb_scrub_page_splits;
+        ulint innodb_scrub_page_split_failures_underflow;
+        ulint innodb_scrub_page_split_failures_out_of_filespace;
+        ulint innodb_scrub_page_split_failures_missing_index;
+        ulint innodb_scrub_page_split_failures_unknown;
+        int64_t innodb_scrub_log;
 };
 
 #ifndef UNIV_HOTBACKUP
