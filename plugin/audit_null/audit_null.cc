@@ -130,19 +130,22 @@ static char *g_record_buffer;
 
 #undef AUDIT_NULL_VAR
 
+static char generic_event_response[1000]  = {0,};
+
 /*
   Plugin status variables for SHOW STATUS
 */
 
 static SHOW_VAR simple_status[] = {
-    {"Audit_null_called", (char *)&number_of_calls, SHOW_INT,
+    {"Audit_null_called", (char*)&number_of_calls, SHOW_INT,
      SHOW_SCOPE_GLOBAL},
 
 #define AUDIT_NULL_VAR(x) \
   {"Audit_null_" #x, (char *)&number_of_calls_##x, SHOW_INT, SHOW_SCOPE_GLOBAL},
 #include "plugin/audit_null/audit_null_variables.h"
-
 #undef AUDIT_NULL_VAR
+
+  {"Audit_null_generic_event_response" , (char *)generic_event_response, SHOW_CHAR, SHOW_SCOPE_GLOBAL},
 
     {0, 0, SHOW_UNDEF, SHOW_SCOPE_GLOBAL}};
 
@@ -411,6 +414,38 @@ static int process_command(MYSQL_THD thd, LEX_CSTRING event_command,
   return 0;
 }
 
+
+/*
+ * Exposes a generic audit log event in a status variable
+ */
+static void log_event(const mysql_event_general* event)
+{
+#define EVENT_PARAM(name) event_str << #name ":" << event-> name << ";"
+#define EVENT_PARAM_STR(name) event_str << #name ":" << event-> name .str << ";"
+  std::stringstream event_str;
+  EVENT_PARAM(event_subclass);
+  EVENT_PARAM(general_error_code);
+  // skipping general_thread_id
+  EVENT_PARAM_STR(general_user);
+  EVENT_PARAM_STR(general_command);
+  EVENT_PARAM_STR(general_query);
+  //EVENT_PARAM_STR(general_charset);
+  EVENT_PARAM(general_time);
+  EVENT_PARAM(general_rows);
+  EVENT_PARAM_STR(general_host);
+  EVENT_PARAM_STR(general_sql_command);
+  EVENT_PARAM_STR(general_external_user);
+  EVENT_PARAM_STR(general_ip);
+  EVENT_PARAM(query_id);
+  EVENT_PARAM_STR(database);
+#undef EVENT_PARAM
+#undef EVENT_PARAM_STR
+
+  std::string str = event_str.str();
+  strncpy(generic_event_response, str.c_str(), 1000);
+}
+
+
 /**
   @brief Plugin function handler.
 
@@ -455,6 +490,7 @@ static int audit_null_notify(MYSQL_THD thd, mysql_event_class_t event_class,
         number_of_calls_general_result++;
         break;
       case MYSQL_AUDIT_GENERAL_STATUS:
+        log_event(static_cast<const mysql_event_general*>(event));
         number_of_calls_general_status++;
         break;
       default:
@@ -736,7 +772,6 @@ static int audit_null_notify(MYSQL_THD thd, mysql_event_class_t event_class,
 
   return process_command(thd, event_command, consume_event);
 }
-
 /*
   Plugin type-specific descriptor
 */

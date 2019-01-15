@@ -1,0 +1,9 @@
+INSTALL PLUGIN null_audit SONAME 'adt_null.so';
+create table foo (v int);
+drop table foo;
+show status like "Audit_null_generic_event_response";
+Variable_name	Value
+Audit_null_generic_event_response	event_subclass:8;general_error_code:0;general_user:root[root] @ localhost [];general_command:Query;general_query:drop table foo;general_time:1547550137;general_rows:1;general_host:localhost;general_sql_command:drop_table;general_external_user:;general_ip:;query_id:49;database:test;
+UNINSTALL PLUGIN null_audit;
+Warnings:
+Warning	1620	Plugin is busy and will be uninstalled on shutdown

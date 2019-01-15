@@ -1,0 +1,11 @@
+--source include/have_null_audit_plugin.inc
+
+eval INSTALL PLUGIN null_audit SONAME '$AUDIT_NULL';
+
+# Do something to generate events
+create table foo (v int);
+drop table foo;
+
+show status like "Audit_null_generic_event_response";
+
+UNINSTALL PLUGIN null_audit;

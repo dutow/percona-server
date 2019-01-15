@@ -371,6 +371,9 @@ int mysql_audit_notify(THD *thd, mysql_event_general_subclass_t subclass,
   event.general_user.str = user_buff;
   event.general_user.length = make_user_name(sctx, user_buff);
   event.general_ip = sctx->ip();
+  event.database.str = thd->db().str;
+  event.database.length = thd->db().length;
+  event.query_id = thd->query_id;
   event.general_host = sctx->host();
   event.general_external_user = sctx->external_user();
   event.general_rows = thd->get_stmt_da()->current_row_for_condition();
