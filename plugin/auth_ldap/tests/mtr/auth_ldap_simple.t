@@ -1,0 +1,10 @@
+INSTALL PLUGIN authentication_ldap_simple SONAME 'authentication_ldap_simple.so';
+SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME LIKE 'authentication_ldap_simple%';
+SHOW GLOBAL VARIABLES LIKE 'authentication_ldap_simple%';
+SET GLOBAL authentication_ldap_simple_bind_base_dn = 'cn=users,cn=accounts,dc=example,dc=test';
+SET GLOBAL authentication_ldap_simple_server_host = 'freeipa';
+SET GLOBAL authentication_ldap_simple_server_port = 389;
+SHOW GLOBAL VARIABLES LIKE 'authentication_ldap_simple%';
+CREATE USER user1 IDENTIFIED WITH authentication_ldap_simple BY 'uid=user1,cn=users,cn=accounts,dc=example,dc=test';
+DROP USER user1;
+UNINSTALL PLUGIN authentication_ldap_simple;
