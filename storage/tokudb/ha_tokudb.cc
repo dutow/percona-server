@@ -1597,7 +1597,7 @@ int ha_tokudb::initialize_share(const char* name, int mode) {
         error = verify_frm_data(table->s->path.str, txn);
         if (error)
             goto exit;
-    } else {
+    } else if (force_recovery == 0 && !read_only && !super_read_only) {
         // remove the frm data for partitions since we are not maintaining it
         error = remove_frm_data(share->status_block, txn);
         if (error)
