@@ -40,7 +40,7 @@ static void gen_rnd_pan_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) delete initid->ptr;
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**
@@ -61,7 +61,7 @@ static char *gen_rnd_pan(UDF_INIT *initid,
   *is_null = 0;
   *is_error = 0;
 
-  return initid->ptr;
+  DBUG_RETURN(initid->ptr);
 }
 
 udf_descriptor udf_gen_rnd_pan() {

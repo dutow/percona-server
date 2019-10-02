@@ -34,7 +34,7 @@ static int data_masking_plugin_init(void *p) {
 
   register_udfs();
 
-  return 0;
+  DBUG_RETURN(0);
 }
 
 static int data_masking_plugin_deinit(void *p) {
@@ -49,7 +49,7 @@ static int data_masking_plugin_deinit(void *p) {
 
   unregister_udfs();
 
-  return 0;
+  DBUG_RETURN(0);
 }
 
 struct st_mysql_daemon data_masking_plugin = {MYSQL_DAEMON_INTERFACE_VERSION};

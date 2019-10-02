@@ -48,7 +48,7 @@ static void gen_range_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) free(initid->ptr);
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**
@@ -76,7 +76,7 @@ static long long gen_range(UDF_INIT *initid MY_ATTRIBUTE((unused)),
   }
   *is_error = 0;
 
-  return value;
+  DBUG_RETURN(value);
 }
 
 udf_descriptor udf_gen_range() {

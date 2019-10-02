@@ -40,7 +40,7 @@ static void gen_rnd_ssn_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) delete initid->ptr;
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**
@@ -60,7 +60,7 @@ static char *gen_rnd_ssn(UDF_INIT *initid,
   initid->ptr = new char[*length + 1];
   strcpy(initid->ptr, ssn.c_str());
 
-  return initid->ptr;
+  DBUG_RETURN(initid->ptr);
 }
 
 udf_descriptor udf_gen_rnd_ssn() {

@@ -44,7 +44,7 @@ static void mask_ssn_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) delete initid->ptr;
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**
@@ -79,7 +79,7 @@ static const char *mask_ssn(UDF_INIT *initid, UDF_ARGS *args,
     initid->ptr[6] = '-';
   }
 
-  return initid->ptr;
+  DBUG_RETURN(initid->ptr);
 }
 
 udf_descriptor udf_mask_ssn() {

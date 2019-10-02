@@ -60,7 +60,7 @@ static void gen_dictionary_load_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) free(initid->ptr);
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**

@@ -44,7 +44,7 @@ static void mask_pan_deinit(UDF_INIT *initid) {
 
   if (initid->ptr) delete initid->ptr;
 
-  return;
+  DBUG_VOID_RETURN;
 }
 
 /**
@@ -79,7 +79,7 @@ static const char *mask_pan(UDF_INIT *initid, UDF_ARGS *args,
     }
   }
 
-  return initid->ptr;
+  DBUG_RETURN(initid->ptr);
 }
 
 udf_descriptor udf_mask_pan() {
