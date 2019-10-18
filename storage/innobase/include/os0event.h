@@ -272,6 +272,8 @@ struct os_event {
   static bool cond_attr_has_monotonic_clock;
 #endif /* !_WIN32 */
 
+  static bool global_initialized;
+
 #ifdef UNIV_DEBUG
   static std::atomic_size_t n_objects_alive;
 #endif /* UNIV_DEBUG */

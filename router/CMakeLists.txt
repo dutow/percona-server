@@ -64,15 +64,12 @@ IF(SOLARIS)
   ENDIF()
 ENDIF()
 
-<<<<<<< HEAD
 # Clang 5 and older: disable "suggest braces around initialization of subobject" warnings
 IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND
    CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.0")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces")
 ENDIF()
 
-||||||| merged common ancestors
-=======
 # ld.lld: error: corrupt input file:
 # version definition index 0 for symbol __gcov_var is out of bounds
 IF(ENABLE_GCOV)
@@ -86,7 +83,6 @@ IF(ENABLE_GCOV)
     CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS})
 ENDIF()
 
->>>>>>> mysql-8.0.18
 IF(WIN32)
   # Activate necessary dllexport/dllimport declarations.
   ADD_DEFINITIONS(-DPROTOBUF_USE_DLLS)
@@ -121,24 +117,6 @@ INCLUDE(cmake/packaging.cmake)
 INCLUDE(cmake/Plugin.cmake)
 INCLUDE(cmake/fuzzer.cmake)
 
-<<<<<<< HEAD
-# Set the proper paths for the mysqlclient library
-SET(MySQL_CLIENT_LIB perconaserverclient)
-SET(MySQL_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/mysql_version.h)
-SET(MySQL_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
-LIST(APPEND MySQL_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/libbinlogevents/export)
-LIST(APPEND MySQL_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
-
-||||||| merged common ancestors
-# Set the proper paths for the mysqlclient library
-SET(MySQL_CLIENT_LIB mysqlclient)
-SET(MySQL_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/mysql_version.h)
-SET(MySQL_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
-LIST(APPEND MySQL_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/libbinlogevents/export)
-LIST(APPEND MySQL_INCLUDE_DIRS ${CMAKE_BINARY_DIR}/include)
-
-=======
->>>>>>> mysql-8.0.18
 INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR}/include)
 
 # a meta-target to allow build everything router related, but nothing that
