@@ -7591,7 +7591,8 @@ static std::tuple<bool, bool> get_mysql_ibd_page_0_io() {
 
   IORequest request(IORequest::READ);
   dberr_t err =
-      os_file_read_first_page_noexit(request, file, page, UNIV_PAGE_SIZE);
+// TODO
+      os_file_read_first_page_noexit(request, nullptr, file, page, UNIV_PAGE_SIZE);
 
   os_file_close(file);
 
