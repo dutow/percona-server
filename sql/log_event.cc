@@ -12232,7 +12232,6 @@ int Update_rows_log_event::do_before_row_operations(
     const Slave_reporting_capability *const) {
   int error = 0;
   DBUG_TRACE;
-  DBUG_ENTER("Update_rows_log_event::do_before_row_operations");
   m_table->file->rpl_before_update_rows();
   /*
     Increment the global status update count variable

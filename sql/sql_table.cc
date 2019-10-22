@@ -15200,7 +15200,7 @@ static bool remove_secondary_keys(
     const dd::Table *table_def, dd::Table *altered_table_def,
     std::vector<dd::Index *> *dd_disabled_sec_keys) {
   uint i;
-  DBUG_ENTER("remove_secondary_keys");
+  DBUG_TRACE;
   DBUG_ASSERT(alter_info->delayed_key_count > 0);
 
   /*
