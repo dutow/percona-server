@@ -381,7 +381,7 @@ void Lex_input_stream::add_digest_token(uint token, Lexer_yystype *yylval) {
      * Adjust Percona's token value to avoid clash with hint tokens.
      * See sql/lex.h for additonal info
      */
-    if(symbols[lex_token_array[token].m_array_index].percona_symbol) {
+    if(lex_token_array[token].m_percona_token) {
       m_digest = digest_add_token(m_digest, TOK_PERCONA_ADJUST(token), yylval);
     } else {
       m_digest = digest_add_token(m_digest, token, yylval);
