@@ -586,7 +586,7 @@ int main(int, char **) {
   printf("  int m_token_length;\n");
   printf("  bool m_append_space;\n");
   printf("  bool m_start_expr;\n");
-  printf("  bool m_array_index;\n");
+  printf("  int m_array_index;\n");
   printf("};\n");
   printf("typedef struct lex_token_string lex_token_string;\n");
 
