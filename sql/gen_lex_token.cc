@@ -529,7 +529,7 @@ static void print_tokens() {
 
   printf("/* PART 10: End of token list. */\n");
 
-  printf("/* DUMMY */ { \"\", 0, false, false, %d}\n", tok_unused + 1);
+  printf("/* DUMMY */ { \"\", 0, false, false, %d}\n", 0);
   printf("};\n");
   printf("#endif /* LEX_TOKEN_WITH_DEFINITION */\n");
 
