@@ -57,7 +57,7 @@ dberr_t PageBulk::init() {
   mtr = static_cast<mtr_t *>(mem_heap_alloc(m_heap, sizeof(mtr_t)));
   mtr_start(mtr);
 
-  if (m_index->is_committed() && !dict_index_is_online_ddl(m_index)) {
+  if (!dict_index_is_online_ddl(m_index)) {
     mtr_x_lock(dict_index_get_lock(m_index), mtr);
   }
 
@@ -352,8 +352,6 @@ bool PageBulk::compress() {
   ut_ad(!m_modified);
   ut_ad(m_page_zip != nullptr);
 
-  DBUG_EXECUTE_IF("innodb_bulk_load_compress_sleep", os_thread_sleep(1000000););
-
   return (
       page_zip_compress(m_page_zip, m_page, m_index, page_zip_level, m_mtr));
 }
@@ -618,7 +616,7 @@ void PageBulk::release() {
 dberr_t PageBulk::latch() {
   mtr_start(m_mtr);
 
-  if (m_index->is_committed() && !dict_index_is_online_ddl(m_index)) {
+  if (!dict_index_is_online_ddl(m_index)) {
     mtr_x_lock(dict_index_get_lock(m_index), m_mtr);
   }
 
@@ -957,7 +955,6 @@ dberr_t BtrBulk::insert(dtuple_t *tuple, ulint level) {
       return (err);
     }
 
-    DEBUG_SYNC_C("bulk_load_insert");
     m_page_bulks->push_back(new_page_bulk);
     ut_ad(level + 1 == m_page_bulks->size());
     m_root_level = level;
