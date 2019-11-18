@@ -2709,11 +2709,11 @@ files_checked:
       ib::warn(ER_IB_MSG_1140);
     }
 
+    srv_dict_metadata = recv_recovery_from_checkpoint_finish(*log_sys, false);
+
     if (!srv_force_recovery && !srv_read_only_mode) {
       buf_flush_sync_all_buf_pools();
     }
-
-    srv_dict_metadata = recv_recovery_from_checkpoint_finish(*log_sys, false);
 
     if (!srv_force_recovery && !recv_sys->found_corrupt_log &&
         (srv_log_file_size_requested != srv_log_file_size ||
