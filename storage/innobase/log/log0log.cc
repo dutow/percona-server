@@ -477,6 +477,7 @@ static void log_calc_buf_size(log_t &log);
 os_event_t log_scrub_event;
 /** Whether log_scrub_thread is active */
 bool log_scrub_thread_active;
+bool log_file_resize_in_progress = false;
 
 /**************************************************/ /**
 

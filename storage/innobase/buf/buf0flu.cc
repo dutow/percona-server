@@ -3178,10 +3178,18 @@ static void buf_flush_page_coordinator_thread(size_t n_page_cleaners) {
 
     mutex_enter(&page_cleaner->mutex);
     lsn_t lsn_limit = buf_flush_sync_lsn;
+    if (buf_flush_sync_lsn == LSN_MAX) {
+	 buf_flush_sync_lsn = 0;
+    }
     mutex_exit(&page_cleaner->mutex);
 
     if (srv_read_only_mode) {
       is_sync_flush = false;
+    } else if (log_file_resize_in_progress) {
+      /* log_sys is closed for resize. We cannot use
+      log_sys or any LSNs during this period. */
+      is_sync_flush = false;
+      ut_ad(is_server_active == false);
     } else {
       ut_a(log_sys != nullptr);
 
@@ -3203,7 +3211,12 @@ static void buf_flush_page_coordinator_thread(size_t n_page_cleaners) {
         This is because in sync-flush mode we want finer granularity of
         flushes through all BP instances. */
         ut_a(lsn_limit > 0);
-        ut_a(lsn_limit < LSN_MAX);
+        /* We dont care finer granularity of flushes when the request is to
+        flush all pages in buffer pool (the LSN_MAX case). Unlike upstream, we
+        rely only on page cleaners to do the flushing of entire buffer pool.
+        Upstream uses foreground thread flushing. See
+        buf_flush_sync_all_buf_pools(). Hence the assert
+        ut_a(lsn_limit < LSN_MAX) is not valid for us */
       } else if (ret_sleep == OS_SYNC_TIME_EXCEEDED) {
         n_to_flush = page_cleaner_flush_pages_recommendation(last_pages, false);
         lsn_limit = LSN_MAX;

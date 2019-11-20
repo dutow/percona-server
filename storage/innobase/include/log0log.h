@@ -1236,6 +1236,10 @@ extern ulonglong innodb_scrub_log_speed;
 extern os_event_t log_scrub_event;
 /** Whether log_scrub_thread is active */
 extern bool log_scrub_thread_active;
+/** True when log resize is in progress. Used only during startup
+(redo resize can happen only then). This variable prevents page
+cleaner cordinator to not use log_sys subsystem during this period */
+extern bool log_file_resize_in_progress;
 
 void log_scrub_thread();
 

@@ -2755,6 +2755,8 @@ files_checked:
         srv_dict_metadata->store();
       }
 
+      log_file_resize_in_progress = true;
+
       /* Prepare to delete the old redo log files */
       flushed_lsn = srv_prepare_to_delete_redo_log_files(i);
 
@@ -2827,6 +2829,8 @@ files_checked:
       log_start(*log_sys, 0, flushed_lsn, flushed_lsn);
 
       log_start_background_threads(*log_sys);
+
+      log_file_resize_in_progress = false;
 
     } else if (recv_sys->is_cloned_db) {
       /* Reset creator for log */
