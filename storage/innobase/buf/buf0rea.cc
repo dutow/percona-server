@@ -1,6 +1,6 @@
 /*****************************************************************************
 
-Copyright (c) 1995, 2019, Oracle and/or its affiliates. All Rights Reserved.
+Copyright (c) 1995, 2020, Oracle and/or its affiliates. All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License, version 2.0, as published by the
@@ -139,10 +139,19 @@ ulint buf_read_page_low(dberr_t *err, bool sync, ulint type, ulint mode,
   }
 
   if (sync) {
+<<<<<<< HEAD
     /* The i/o is already completed when we arrive from
     fil_read */
     *err = buf_page_io_complete(bpage);
     if (*err != DB_SUCCESS) {
+||||||| merged common ancestors
+    /* The i/o is already completed when we arrive from
+    fil_read */
+    if (!buf_page_io_complete(bpage)) {
+=======
+    /* The i/o is already completed when we arrive from fil_read */
+    if (!buf_page_io_complete(bpage, false)) {
+>>>>>>> mysql-8.0.21
       return (0);
     }
   }
