@@ -1638,17 +1638,9 @@ class Get_access_maps : public boost::default_bfs_visitor {
         m_with_admin_acl(with_admin_acl),
         m_dynamic_acl(dyn_acl),
         m_restrictions(restrictions),
-<<<<<<< HEAD
-        m_grantee{acl_user->user, strlen(acl_user->user),
-                  acl_user->host.get_host(), acl_user->host.get_host_len()},
-        m_effective_grants(effective_grants) {}
-||||||| merged common ancestors
-        m_grantee{acl_user->user, strlen(acl_user->user),
-                  acl_user->host.get_host(), acl_user->host.get_host_len()} {}
-=======
         m_grantee{acl_user->user, acl_user->get_username_length(),
                   acl_user->host.get_host(), acl_user->host.get_host_len()} {}
->>>>>>> mysql-8.0.21
+        m_effective_grants(effective_grants) {}
   template <typename Vertex, typename Graph>
   void discover_vertex(Vertex u, const Graph &) const {
     ACL_USER acl_user = get(boost::vertex_acl_user_t(), *g_granted_roles)[u];

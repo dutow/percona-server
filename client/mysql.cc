@@ -2658,17 +2658,7 @@ static char **new_mysql_completion(const char *text, int start, int end);
   if not.
 */
 
-<<<<<<< HEAD
-#if defined(USE_NEW_XLINE_INTERFACE) || defined(USE_LIBEDIT_INTERFACE)
-||||||| merged common ancestors
-#if defined(USE_NEW_EDITLINE_INTERFACE)
-static int fake_magic_space(int, int);
-char *no_completion(const char *, int)
-#elif defined(USE_LIBEDIT_INTERFACE)
-static int fake_magic_space(int, int);
-=======
-#if defined(EDITLINE_HAVE_COMPLETION_CHAR)
->>>>>>> mysql-8.0.21
+#if defined(EDITLINE_HAVE_COMPLETION_CHAR) || defined(USE_NEW_XLINE_INTERFACE) || defined(USE_LIBEDIT_INTERFACE)
 char *no_completion(const char *, int)
 #elif defined(EDITLINE_HAVE_COMPLETION_INT)
 int no_completion(const char *, int)
@@ -2692,16 +2682,9 @@ static int not_in_history(const char *line) {
 }
 
 static int fake_magic_space(int, int)
-<<<<<<< HEAD
-||||||| merged common ancestors
-#else
-static int fake_magic_space(int, int)
-#endif
-=======
 #else
 static int fake_magic_space(const char *, int)
 #endif
->>>>>>> mysql-8.0.21
 {
   rl_insert(1, ' ');
   return 0;
@@ -2712,13 +2695,7 @@ static void initialize_readline(char *name) {
   rl_readline_name = name;
 
   /* Tell the completer that we want a crack first. */
-<<<<<<< HEAD
-#if defined(USE_NEW_XLINE_INTERFACE)
-||||||| merged common ancestors
-#if defined(USE_NEW_EDITLINE_INTERFACE)
-=======
 #if defined(EDITLINE_HAVE_COMPLETION_CHAR)
->>>>>>> mysql-8.0.21
   rl_attempted_completion_function = &new_mysql_completion;
   rl_completion_entry_function = &no_completion;
 

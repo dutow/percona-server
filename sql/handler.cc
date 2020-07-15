@@ -116,12 +116,8 @@
 #include "sql/sql_plugin.h"  // plugin_foreach
 #include "sql/sql_select.h"  // actual_key_parts
 #include "sql/sql_table.h"   // build_table_filename
-<<<<<<< HEAD
 #include "sql/sql_zip_dict.h"
-||||||| merged common ancestors
-=======
 #include "sql/strfunc.h"     // strnncmp_nopads
->>>>>>> mysql-8.0.21
 #include "sql/system_variables.h"
 #include "sql/table.h"
 #include "sql/tc_log.h"

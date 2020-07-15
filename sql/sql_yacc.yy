@@ -1981,15 +1981,9 @@ void warn_about_deprecated_binary(THD *thd)
         ts_option_redo_buffer_size
         ts_option_undo_buffer_size
         ts_option_wait
-<<<<<<< HEAD
         ts_option_encryption
         ts_option_encryption_key_id
-||||||| merged common ancestors
-	ts_option_encryption
-=======
-        ts_option_encryption
         ts_option_engine_attribute
->>>>>>> mysql-8.0.21
 
 %type <explain_format_type> opt_explain_format_type
 %type <explain_format_type> opt_explain_analyze_type
@@ -5428,15 +5422,9 @@ tablespace_option:
         | ts_option_wait
         | ts_option_comment
         | ts_option_file_block_size
-<<<<<<< HEAD
         | ts_option_encryption
         | ts_option_encryption_key_id
-||||||| merged common ancestors
-	| ts_option_encryption
-=======
-        | ts_option_encryption
         | ts_option_engine_attribute
->>>>>>> mysql-8.0.21
         ;
 
 opt_alter_tablespace_options:
@@ -5465,15 +5453,9 @@ alter_tablespace_option:
         | ts_option_max_size
         | ts_option_engine
         | ts_option_wait
-<<<<<<< HEAD
         | ts_option_encryption
         | ts_option_encryption_key_id
-||||||| merged common ancestors
-	| ts_option_encryption
-=======
-        | ts_option_encryption
         | ts_option_engine_attribute
->>>>>>> mysql-8.0.21
         ;
 
 opt_undo_tablespace_options:
@@ -5657,7 +5639,6 @@ ts_option_encryption:
           }
         ;
 
-<<<<<<< HEAD
 ts_option_encryption_key_id:
           ENCRYPTION_KEY_ID_SYM opt_equal real_ulong_num
           {
@@ -5665,8 +5646,6 @@ ts_option_encryption_key_id:
           }
         ;
 
-||||||| merged common ancestors
-=======
 ts_option_engine_attribute:
           ENGINE_ATTRIBUTE_SYM opt_equal json_attribute
           {
@@ -5674,7 +5653,6 @@ ts_option_engine_attribute:
           }
         ;
 
->>>>>>> mysql-8.0.21
 size_number:
           real_ulonglong_num { $$= $1;}
         | IDENT_sys
@@ -6234,17 +6212,11 @@ create_table_option:
         | ENCRYPTION_SYM opt_equal TEXT_STRING_sys
           {
             $$= NEW_PTN PT_create_encryption_option($3);
-<<<<<<< HEAD
-	  }
+	        }
         | ENCRYPTION_KEY_ID_SYM opt_equal real_ulong_num
           {
             $$= NEW_PTN PT_create_encryption_key_id_option($3);
           }
-||||||| merged common ancestors
-	  }
-=======
-          }
->>>>>>> mysql-8.0.21
         | AUTO_INC opt_equal ulonglong_num
           {
             $$= NEW_PTN PT_create_auto_increment_option($3);
