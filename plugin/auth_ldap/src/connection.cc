@@ -46,13 +46,13 @@ bool Connection::connect(const std::string &bind_dn,
   std::lock_guard<std::mutex> lock(conn_mutex_);
 
   if (!(ldap_host_.empty() || bind_dn.empty())) {
-    log_srv_dbg("Connecting to ldap server as " + bind_dn);
+    log_srv_dbg("Connecting to ldap server as " + bind_dn + " ");
 
     if (ldap_) {
       ldap_unbind_ext_s(ldap_, nullptr, nullptr);
     }
 
-    int version = LDAP_VERSION3;
+    static const int version = LDAP_VERSION3;
     int err = ldap_set_option(nullptr, LDAP_OPT_PROTOCOL_VERSION, &version);
     if (err != LDAP_OPT_SUCCESS) {
       log_error("ldap_set_option(LDAP_OPT_PROTOCOL_VERSION)", err);
