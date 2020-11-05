@@ -30,8 +30,8 @@ CREATE TABLE t1(c1 INT, c2 char(20)) ENGINE = InnoDB;
 --error ER_CANNOT_FIND_KEY_IN_KEYRING
 ALTER TABLE t1 ENCRYPTION="Y", algorithm=copy;
 
---let $restart_parameters="$KEYRING_RESTART_PARAM"
---let $restart_hide_args= 1
+--let $restart_parameters = $keyring_restart_param
+--let $do_not_echo_parameters = 1
 --source include/restart_mysqld.inc
 
 --disable_warnings
@@ -135,8 +135,8 @@ INSERT INTO t1 VALUES(8, "iiiii");
 INSERT INTO t1 VALUES(9, "jjjjj");
 
 # Restart to confirm the encryption info can be retrieved properly.
---let $restart_parameters="$KEYRING_RESTART_PARAM"
---let $restart_hide_args= 1
+--let $restart_parameters = $keyring_restart_param
+--let $do_not_echo_parameters = 1
 --source include/kill_and_restart_mysqld.inc
 
 SELECT * FROM t1 ORDER BY c1 LIMIT 10;
@@ -186,8 +186,8 @@ UNLOCK TABLES;
 SELECT * FROM t1 ORDER BY c1 LIMIT 10;
 
 # Restart to confirm the encryption info can be retrieved properly.
---let $restart_parameters="$KEYRING_RESTART_PARAM"
---let $restart_hide_args= 1
+--let $restart_parameters = $keyring_restart_param
+--let $do_not_echo_parameters = 1
 --source include/restart_mysqld.inc
 
 SELECT * FROM t1 ORDER BY c1;
@@ -207,8 +207,8 @@ UNLOCK TABLES;
 SELECT * FROM t1 ORDER BY c1 LIMIT 10;
 
 # Restart to confirm the encryption info can be retrieved properly.
---let $restart_parameters="$KEYRING_RESTART_PARAM"
---let $restart_hide_args= 1
+--let $restart_parameters = $keyring_restart_param
+--let $do_not_echo_parameters = 1
 --source include/restart_mysqld.inc
 
 SELECT * FROM t1 ORDER BY c1;
@@ -239,8 +239,8 @@ UNLOCK TABLES;
 SELECT c1, ST_AsText(g) FROM t1 ORDER BY c1 LIMIT 10;
 
 # Restart to confirm the encryption info can be retrieved properly.
---let $restart_parameters="$KEYRING_RESTART_PARAM --innodb_strict_mode=OFF"
---let $restart_hide_args= 1
+--let $restart_parameters = $keyring_restart_param --innodb_strict_mode=OFF
+--let $do_not_echo_parameters = 1
 --source include/restart_mysqld.inc
 
 SELECT c1, ST_AsText(g) FROM t1 ORDER BY c1 LIMIT 10;
