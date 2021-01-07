@@ -2407,6 +2407,7 @@ Item *sp_prepare_func_item(THD *thd, Item **it_addr) {
 
   if ((*it_addr)->fixed) {
     thd->lex->set_exec_started();
+    (*it_addr)->change_thd(thd);
     return *it_addr;
   }
 

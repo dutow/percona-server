@@ -241,6 +241,15 @@ bool Item_func::itemize(Parse_context *pc, Item **res) {
   return false;
 }
 
+void Item_func::change_thd(THD *thd) {
+  Item **arg, **arg_end;
+  if (arg_count) {  // Print purify happy
+    for (arg = args, arg_end = args + arg_count; arg != arg_end; arg++) {
+      (*arg)->change_thd(thd);
+    }
+  }
+}
+
 /*
   Resolve references to table column for a function and its argument
 

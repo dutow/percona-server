@@ -403,6 +403,7 @@ class Item_func : public Item_result_field, public Func_args_handle {
   bool itemize(Parse_context *pc, Item **res) override;
 
   bool fix_fields(THD *, Item **ref) override;
+  void change_thd(THD *) override;
   bool fix_func_arg(THD *, Item **arg);
   void fix_after_pullout(SELECT_LEX *parent_select,
                          SELECT_LEX *removed_select) override;

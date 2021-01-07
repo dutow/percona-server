@@ -1618,6 +1618,12 @@ Item_sp_variable::Item_sp_variable(const Name_string sp_var_name)
 {
 }
 
+void Item_sp_variable::change_thd(THD *thd) {
+  DBUG_ASSERT(fixed);
+  DBUG_ASSERT(m_thd != nullptr);
+  m_thd = thd;
+}
+
 bool Item_sp_variable::fix_fields(THD *thd, Item **) {
   m_thd = thd; /* NOTE: this must be set before any this_xxx() */
   Item *it = this_item();

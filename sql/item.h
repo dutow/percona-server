@@ -1093,6 +1093,7 @@ class Item : public Parse_tree_node {
   virtual void make_field(Send_field *field);
   virtual Field *make_string_field(TABLE *table) const;
   virtual bool fix_fields(THD *, Item **);
+  virtual void change_thd(THD *){}
   /**
     Fix after tables have been moved from one select_lex level to the parent
     level, e.g by semijoin conversion.
@@ -3401,6 +3402,7 @@ class Item_sp_variable : public Item {
 
   table_map used_tables() const override { return INNER_TABLE_BIT; }
   bool fix_fields(THD *thd, Item **) override;
+  void change_thd(THD *thd) override;
 
   double val_real() override;
   longlong val_int() override;
