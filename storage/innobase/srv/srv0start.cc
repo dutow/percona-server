@@ -1548,15 +1548,6 @@ static dberr_t srv_sys_enable_encryption(bool create_new_db) {
   fil_space_t *space = fil_space_get(TRX_SYS_SPACE);
   dberr_t err = DB_SUCCESS;
 
-  // Fail startup if sys space is encrypted with crypt_data v1
-  // This should only happen on upgrade
-  if (srv_sys_space.keyring_encryption_info.page0_has_crypt_data &&
-      srv_sys_space.keyring_encryption_info.type != CRYPT_SCHEME_UNENCRYPTED &&
-      srv_sys_space.keyring_encryption_info.private_version == 1) {
-    ib::error(ER_UPGRADE_KEYRING_UNSUPPORTED_VERSION_ENCRYPTION);
-    return (DB_ERROR);
-  }
-
   if (create_new_db && srv_sys_tablespace_encrypt) {
     fsp_flags_set_encryption(space->flags);
     srv_sys_space.set_flags(space->flags);
@@ -1567,16 +1558,14 @@ static dberr_t srv_sys_enable_encryption(bool create_new_db) {
     const auto fsp_flags = srv_sys_space.m_files.begin()->flags();
     const bool is_encrypted = FSP_FLAGS_GET_ENCRYPTION(fsp_flags);
 
-    if (is_encrypted && !srv_sys_tablespace_encrypt &&
-        !srv_sys_space.keyring_encryption_info.page0_has_crypt_data) {
+    if (is_encrypted && !srv_sys_tablespace_encrypt) {
       ib::error() << "The system tablespace is encrypted but"
                   << " --innodb_sys_tablespace_encrypt is"
                   << " OFF. Enable the option and start server";
       return (DB_ERROR);
     }
 
-    if (!is_encrypted && srv_sys_tablespace_encrypt &&
-        !srv_sys_space.keyring_encryption_info.page0_has_crypt_data) {
+    if (!is_encrypted && srv_sys_tablespace_encrypt) {
       ib::error() << "The system tablespace is not encrypted but"
                   << " --innodb_sys_tablespace_encrypt is"
                   << " ON. This instance was not bootstrapped"
@@ -1585,8 +1574,7 @@ static dberr_t srv_sys_enable_encryption(bool create_new_db) {
       return (DB_ERROR);
     }
 
-    if (is_encrypted &&
-        !srv_sys_space.keyring_encryption_info.page0_has_crypt_data) {
+    if (is_encrypted) {
       fsp_flags_set_encryption(space->flags);
       srv_sys_space.set_flags(space->flags);
 
