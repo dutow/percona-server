@@ -7569,7 +7569,7 @@ void fil_io_set_encryption(IORequest &req_type, const page_id_t &page_id,
 
   /* Don't encrypt pages of system tablespace upto TRX_SYS_PAGE(including). The
   doublewrite buffer header is on TRX_SYS_PAGE */
-  if (fsp_is_system_tablespace(space->id) && space->crypt_data == nullptr &&
+  if (fsp_is_system_tablespace(space->id) && 
       page_id.page_no() <= FSP_TRX_SYS_PAGE_NO) {
     req_type.clear_encrypted();
     return;
