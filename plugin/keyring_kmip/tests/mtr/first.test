@@ -1,0 +1,32 @@
+--source include/have_keyring_kmip_plugin.inc
+
+SELECT * FROM information_schema.plugins WHERE plugin_name LIKE 'keyring%';
+
+SELECT * FROM performance_schema.keyring_keys;
+
+CREATE TABLE t1(
+  id BIGINT UNSIGNED NOT NULL,
+  val CHAR(32),
+  PRIMARY KEY(id)
+) ENCRYPTION="Y" ENGINE = InnoDB;
+
+SELECT * FROM performance_schema.keyring_keys;
+
+INSERT INTO t1 VALUES(0, "aaaaa");
+INSERT INTO t1 VALUES(1, "bbbbb");
+INSERT INTO t1 VALUES(2, "ccccc");
+SELECT * FROM t1;
+
+ALTER INSTANCE ROTATE INNODB MASTER KEY;
+
+SELECT * FROM performance_schema.keyring_keys;
+
+SELECT * FROM t1;
+
+--source include/restart_mysqld.inc
+
+SELECT * FROM performance_schema.keyring_keys;
+
+SELECT * FROM t1;
+
+DROP TABLE t1;
