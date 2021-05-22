@@ -17,7 +17,7 @@
 --echo # ----------------------------------------------------------------------
 --echo # Keyring encryption tests
 --replace_regex /[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/
---exec $MYSQL_KEYRING_ENCRYPTION_TEST --component-dir=$COMPONENT_DIR --keyring=$KEYRING_COMPONENT
+--exec $MYSQL_KEYRING_ENCRYPTION_TEST --component-dir=$COMPONENT_DIR --keyring=$KEYRING_COMPONENT 2>/tmp/ooo2 > /tmp/ooo
 
 --echo # ----------------------------------------------------------------------
 --echo # Cleanup

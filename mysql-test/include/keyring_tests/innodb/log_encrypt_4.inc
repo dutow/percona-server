@@ -60,7 +60,7 @@ DROP TABLE tab1,tab2;
 
 --force-rmdir $MYSQL_TMP_DIR/log_encrypt_dir1
 --remove_file $MYSQLTEST_VARDIR/tmp/bootstrap1.log
---source include/keyring_tests/helper/local_keyring_file_remove.inc
+#--source include/keyring_tests/helper/local_keyring_kmip_remove.inc
 #------------------------------------------------------------------------------
 
 # Take backup of global manifest file
@@ -105,7 +105,7 @@ DROP TABLE tab1,tab2;
 
 --force-rmdir $MYSQL_TMP_DIR/log_encrypt_dir2
 --remove_file $MYSQLTEST_VARDIR/tmp/bootstrap2.log
---source include/keyring_tests/helper/local_keyring_file_remove.inc
+#--source include/keyring_tests/helper/local_keyring_file_remove.inc
 #------------------------------------------------------------------------------
 
 let NEW_CMD = $MYSQLD --no-defaults $PLUGIN_DIR_OPT --innodb_dedicated_server=OFF --initialize-insecure --innodb_log_file_size=$LOG_FILE_SIZE --innodb_page_size=$START_PAGE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR3 --init-file=$BOOTSTRAP_SQL --secure-file-priv="" --innodb_redo_log_encrypt=ON </dev/null>>$MYSQLTEST_VARDIR/tmp/bootstrap3.log 2>&1;
@@ -131,7 +131,7 @@ DROP TABLE tab1;
 
 --force-rmdir $MYSQL_TMP_DIR/log_encrypt_dir3
 --remove_file $MYSQLTEST_VARDIR/tmp/bootstrap3.log
---source include/keyring_tests/helper/local_keyring_file_remove.inc
+#--source include/keyring_tests/helper/local_keyring_file_remove.inc
 --remove_file $BOOTSTRAP_SQL
 
 # Restart server

@@ -76,3 +76,5 @@ class Config_reader {
 }  // namespace keyring_common
 
 #endif  // !CONFIG_READER_INCLUDED
+
+#include "config_reader.cc"
