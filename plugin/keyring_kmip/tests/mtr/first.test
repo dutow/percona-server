@@ -23,10 +23,10 @@ SELECT * FROM performance_schema.keyring_keys;
 
 SELECT * FROM t1;
 
---source include/restart_mysqld.inc
+#--source include/restart_mysqld.inc
 
-SELECT * FROM performance_schema.keyring_keys;
+#SELECT * FROM performance_schema.keyring_keys;
 
-SELECT * FROM t1;
+#SELECT * FROM t1;
 
 DROP TABLE t1;

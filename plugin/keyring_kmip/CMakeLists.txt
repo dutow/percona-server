@@ -24,10 +24,15 @@ ENDIF()
 
 DISABLE_MISSING_PROFILE_WARNING()
 
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/plugin/keyring_kmip)
 INCLUDE_DIRECTORIES(SYSTEM ${BOOST_PATCHES_DIR} ${BOOST_INCLUDE_DIR})
 
 MYSQL_ADD_PLUGIN(keyring_kmip
-  keyring_kmip.cc
+  mysqlpp/component_logger.cpp
+  mysqlpp/erasing_memory_resource.cpp
+  mysqlpp/plugin_registry_guard.cpp
+  mysqlpp/service_guard.cpp
+  keyring_kmip.cpp
   MODULE_ONLY
   MODULE_OUTPUT_NAME "keyring_kmip"
 )
