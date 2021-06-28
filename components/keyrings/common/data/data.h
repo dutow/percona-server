@@ -24,13 +24,54 @@
 #define DATA_INCLUDED
 
 #include <string>
+#include "boost.h"
 
 namespace keyring_common {
 namespace data {
 
 /** Data types */
-using Type = std::string;
-using Sensitive_data = std::string;
+using Type = pmr_string;
+//using Sensitive_data = pmr_string;
+
+struct Sensitive_data {
+  pmr_string data;
+
+  Sensitive_data(){}
+
+  Sensitive_data(pmr_string str) : data(str) {
+    encode();
+  }
+
+  Sensitive_data(const char* str) : data(str) {
+    encode();
+  }
+  Sensitive_data(const char* str, std::size_t len) : data(str, len) {
+    encode();
+  }
+
+  bool operator==(Sensitive_data const& other) const {
+    return other.data == data;
+  }
+
+  std::size_t size() const { return data.size(); }
+  std::size_t length() const { return data.size(); }
+
+  pmr_string decode() const { 
+    auto ret = data;
+    for(auto& c: ret) {
+      // TODO: encode / decode with some actual key, e.g. memory address
+      c ^= 11;
+    }
+    return ret;
+  }
+
+  void encode() {
+    for(auto& c: data) {
+      // TODO: encode / decode with some actual key, e.g. memory address
+      c ^= 11;
+    }
+  }
+};
 
 /**
   Sensitive data storage

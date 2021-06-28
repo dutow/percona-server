@@ -1,0 +1,37 @@
+# ----------------------------------------------------------------------
+# Setup
+# Creating local configuration file for keyring component: component_keyring_kmip
+# Creating manifest file for current MySQL server instance
+# Re-starting mysql server with manifest file
+# ----------------------------------------------------------------------
+SELECT * FROM information_schema.plugins WHERE plugin_name LIKE 'keyring%';
+PLUGIN_NAME	PLUGIN_VERSION	PLUGIN_STATUS	PLUGIN_TYPE	PLUGIN_TYPE_VERSION	PLUGIN_LIBRARY	PLUGIN_LIBRARY_VERSION	PLUGIN_AUTHOR	PLUGIN_DESCRIPTION	PLUGIN_LICENSE	LOAD_OPTION
+SELECT * FROM performance_schema.keyring_keys;
+KEY_ID	KEY_OWNER	BACKEND_KEY_ID
+CREATE TABLE t1(
+id BIGINT UNSIGNED NOT NULL,
+val CHAR(32),
+PRIMARY KEY(id)
+) ENCRYPTION="Y" ENGINE = InnoDB;
+SELECT * FROM performance_schema.keyring_keys;
+KEY_ID	KEY_OWNER	BACKEND_KEY_ID
+INNODBKey-fe160481-d97d-11eb-9fec-024227c7be54-1		
+INSERT INTO t1 VALUES(0, "aaaaa");
+INSERT INTO t1 VALUES(1, "bbbbb");
+INSERT INTO t1 VALUES(2, "ccccc");
+SELECT * FROM t1;
+id	val
+0	aaaaa
+1	bbbbb
+2	ccccc
+ALTER INSTANCE ROTATE INNODB MASTER KEY;
+SELECT * FROM performance_schema.keyring_keys;
+KEY_ID	KEY_OWNER	BACKEND_KEY_ID
+INNODBKey-fe160481-d97d-11eb-9fec-024227c7be54-2		
+INNODBKey-fe160481-d97d-11eb-9fec-024227c7be54-1		
+SELECT * FROM t1;
+id	val
+0	aaaaa
+1	bbbbb
+2	ccccc
+DROP TABLE t1;

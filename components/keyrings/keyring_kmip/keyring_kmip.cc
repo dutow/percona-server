@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 #include <cstring>
 #include <memory>
 
-#include "keyring_file.h"
+#include "keyring_kmip.h"
 
 /* Keyring_encryption_service_impl */
 #include <components/keyrings/common/component_helpers/include/keyring_encryption_service_definition.h>
@@ -46,9 +46,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
 
 /* clang-format off */
 /**
-  @page PAGE_COMPONENT_KEYRING_FILE component_keyring_file
+  @page PAGE_COMPONENT_KEYRING_KMIP component_keyring_kmip
 
-  This is keyring component services' implementation with file as backend to
+  This is keyring component services' implementation with kmip as backend to
   store data. This component implements following keyring services:
 
   - keyring_aes
@@ -59,76 +59,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA */
   - keyring_reader
   - keyring_reload
   - keyring_writer
-
-  Data is stored in JSON format.
-  @code
-  {
-    "version": "1.0",
-    "elements": [
-      {
-        "user": "<user_name>",
-        "data_id": "<name>",
-        "data_type": "<data_type>",
-        "data": "<hex_of_data>",
-        "extension": []
-      },
-      ...
-      ...
-    ]
-  }
-  @endcode
-
-  For most parts, component_keyring_file relies on keyring_common library
-  for implementation.
-
-  The component relies on component_keyring_file.cnf file for configuration.
-
-  Location of this configuration file is same directory where component_keyring_file
-  shared library is located. This configuration file should contain information
-  in one of the following formats.
-
-  1. Signal component to read configuration from current working directory
-  @code
-  {
-    "read_local_config": true
-  }
-  @endcode
-
-  2. Details of data file and nature of keyring
-  @code
-  {
-    "path": <path to data file>,
-    "read_only": <boolean value to signal state of the keyring>
-  }
-  @endcode
-
-  If configuration file co-located with shared library signals to read
-  configuration locally, current working directory is searched for
-  component_keyring_file.cnf and expected format is 2.
-
-  The component exposes following status information through
-  keyring_metadata_query service implementation.
-
-  1. Name of the keyring
-  2. Author
-  3. Implementation name
-  4. Version
-  5. Component status
-  6. Data file location
-  7. Read only status
-
-  <b>
-    Note: Implementation does not provide concurrency control.
-          That is responsibilty of users of the services.
-  </b>
 */
 /* clang-format on */
 
 using keyring_common::operations::Keyring_operations;
-using keyring_file::backend::Keyring_file_backend;
-using keyring_file::config::Config_pod;
-using keyring_file::config::g_component_path;
-using keyring_file::config::g_instance_path;
+using keyring_kmip::backend::Keyring_kmip_backend;
+using keyring_kmip::config::Config_pod;
+using keyring_kmip::config::g_component_path;
+using keyring_kmip::config::g_instance_path;
 
 /** Dependencies */
 REQUIRES_SERVICE_PLACEHOLDER(log_builtins);
@@ -137,15 +75,15 @@ REQUIRES_SERVICE_PLACEHOLDER(log_builtins_string);
 SERVICE_TYPE(log_builtins) * log_bi;
 SERVICE_TYPE(log_builtins_string) * log_bs;
 
-namespace keyring_file {
+namespace keyring_kmip {
 /** Keyring operations object */
-Keyring_operations<Keyring_file_backend> *g_keyring_operations = nullptr;
+Keyring_operations<Keyring_kmip_backend> *g_keyring_operations = nullptr;
 
 /** Keyring data source */
 Config_pod *g_config_pod = nullptr;
 
 /** Keyring state */
-bool g_keyring_file_inited = false;
+bool g_keyring_kmip_inited = false;
 
 /**
   Set path to component
@@ -187,43 +125,51 @@ bool set_paths(const char *component_path, const char *instance_path) {
 bool init_or_reinit_keyring() {
   /* Get config */
   std::unique_ptr<Config_pod> new_config_pod;
-  if (keyring_file::config::find_and_read_config_file(new_config_pod))
+  fprintf(stderr,"kmip_inti\n");
+  if (keyring_kmip::config::find_and_read_config_file(new_config_pod))
     return true;
 
+  fprintf(stderr,"kmip_inti\n");
   /* Initialize backend handler */
-  std::unique_ptr<Keyring_file_backend> new_backend =
-      std::make_unique<Keyring_file_backend>(
-          new_config_pod.get()->config_file_path_,
-          new_config_pod.get()->read_only_);
+  std::unique_ptr<Keyring_kmip_backend> new_backend =
+      std::make_unique<Keyring_kmip_backend>(*new_config_pod.get());
   if (!new_backend || !new_backend.get()->valid()) return true;
 
+  fprintf(stderr,"kmip_inti\n");
   /* Create new operations class */
-  Keyring_operations<Keyring_file_backend> *new_operations = new (std::nothrow)
-      Keyring_operations<Keyring_file_backend>(true, new_backend.release());
+  Keyring_operations<Keyring_kmip_backend> *new_operations = new (std::nothrow)
+      Keyring_operations<Keyring_kmip_backend>(true, new_backend.release());
   if (new_operations == nullptr) return true;
 
+  fprintf(stderr,"kmip_inti\n");
   if (!new_operations->valid()) {
     delete new_operations;
     return true;
   }
+
+  fprintf(stderr,"kmip_inti\n");
 
   std::swap(g_keyring_operations, new_operations);
   Config_pod *current = g_config_pod;
   g_config_pod = new_config_pod.release();
   if (current != nullptr) delete current;
   if (new_operations != nullptr) delete new_operations;
+
   return false;
 }
 
 /**
   Initialization function for component - Used when loading the component
 */
-static mysql_service_status_t keyring_file_init() {
+static mysql_service_status_t keyring_kmip_init() {
+  fprintf(stderr,"kmip_init\n");
   log_bi = mysql_service_log_builtins;
   log_bs = mysql_service_log_builtins_string;
 
   g_component_callbacks = new (std::nothrow)
       keyring_common::service_implementation::Component_callbacks();
+  g_keyring_kmip_inited = true;
+  fprintf(stderr,"kmip_init\n");
 
   return false;
 }
@@ -231,76 +177,70 @@ static mysql_service_status_t keyring_file_init() {
 /**
   De-initialization function for component - Used when unloading the component
 */
-static mysql_service_status_t keyring_file_deinit() {
-  g_keyring_file_inited = false;
+static mysql_service_status_t keyring_kmip_deinit() {
+  fprintf(stderr,"kmip_deinit\n");
+  g_keyring_kmip_inited = false;
   if (g_component_path) free(g_component_path);
   g_component_path = nullptr;
   if (g_instance_path) free(g_instance_path);
   g_instance_path = nullptr;
 
-  if (g_keyring_operations != nullptr) delete g_keyring_operations;
-  g_keyring_operations = nullptr;
-
-  if (g_config_pod) delete g_config_pod;
-  g_config_pod = nullptr;
-
-  if (g_component_callbacks) delete g_component_callbacks;
-  g_component_callbacks = nullptr;
-
   return false;
 }
 
-}  // namespace keyring_file
+}  // namespace keyring_kmip
 
 /** ======================================================================= */
 
 /** Component declaration related stuff */
 
 /** This component provides implementation of following component services */
-KEYRING_AES_IMPLEMENTOR(component_keyring_file);
-KEYRING_GENERATOR_IMPLEMENTOR(component_keyring_file);
-KEYRING_LOAD_IMPLEMENTOR(component_keyring_file);
-KEYRING_KEYS_METADATA_FORWARD_ITERATOR_IMPLEMENTOR(component_keyring_file);
-KEYRING_COMPONENT_STATUS_IMPLEMENTOR(component_keyring_file);
-KEYRING_COMPONENT_METADATA_QUERY_IMPLEMENTOR(component_keyring_file);
-KEYRING_READER_IMPLEMENTOR(component_keyring_file);
-KEYRING_WRITER_IMPLEMENTOR(component_keyring_file);
+//KEYRING_AES_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_GENERATOR_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_LOAD_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_KEYS_METADATA_FORWARD_ITERATOR_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_COMPONENT_STATUS_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_COMPONENT_METADATA_QUERY_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_READER_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_WRITER_IMPLEMENTOR(component_keyring_kmip);
 /* Used if log_builtins is not available */
-KEYRING_LOG_BUILTINS_IMPLEMENTOR(component_keyring_file);
-KEYRING_LOG_BUILTINS_STRING_IMPLEMENTOR(component_keyring_file);
-
-/** Component provides */
-BEGIN_COMPONENT_PROVIDES(component_keyring_file)
-PROVIDES_SERVICE(component_keyring_file, keyring_aes),
-    PROVIDES_SERVICE(component_keyring_file, keyring_generator),
-    PROVIDES_SERVICE(component_keyring_file, keyring_load),
-    PROVIDES_SERVICE(component_keyring_file, keyring_keys_metadata_iterator),
-    PROVIDES_SERVICE(component_keyring_file, keyring_component_status),
-    PROVIDES_SERVICE(component_keyring_file, keyring_component_metadata_query),
-    PROVIDES_SERVICE(component_keyring_file, keyring_reader_with_status),
-    PROVIDES_SERVICE(component_keyring_file, keyring_writer),
-    PROVIDES_SERVICE(component_keyring_file, log_builtins),
-    PROVIDES_SERVICE(component_keyring_file, log_builtins_string),
-    END_COMPONENT_PROVIDES();
+KEYRING_LOG_BUILTINS_IMPLEMENTOR(component_keyring_kmip);
+KEYRING_LOG_BUILTINS_STRING_IMPLEMENTOR(component_keyring_kmip);
 
 REQUIRES_SERVICE_PLACEHOLDER(psi_memory_v2);
 
+/** Component provides */
+BEGIN_COMPONENT_PROVIDES(component_keyring_kmip)
+//PROVIDES_SERVICE(component_keyring_kmip, keyring_aes),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_generator),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_load),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_keys_metadata_iterator),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_component_status),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_component_metadata_query),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_reader_with_status),
+    PROVIDES_SERVICE(component_keyring_kmip, keyring_writer),
+    PROVIDES_SERVICE(component_keyring_kmip, log_builtins),
+    PROVIDES_SERVICE(component_keyring_kmip, log_builtins_string),
+    END_COMPONENT_PROVIDES();
+
+PSI_memory_key KEY_mem_keyring_kmip;
+
 /** List of dependencies */
-BEGIN_COMPONENT_REQUIRES(component_keyring_file)
+BEGIN_COMPONENT_REQUIRES(component_keyring_kmip)
 REQUIRES_SERVICE(registry), REQUIRES_SERVICE(log_builtins),
     REQUIRES_SERVICE(log_builtins_string), REQUIRES_PSI_MEMORY_SERVICE, END_COMPONENT_REQUIRES();
 
 /** Component description */
-BEGIN_COMPONENT_METADATA(component_keyring_file)
-METADATA("mysql.author", "Oracle Corporation"),
+BEGIN_COMPONENT_METADATA(component_keyring_kmip)
+METADATA("mysql.author", "Percona"),
     METADATA("mysql.license", "GPL"),
-    METADATA("component_keyring_file_service", "1"), END_COMPONENT_METADATA();
+    METADATA("component_keyring_kmip_service", "1"), END_COMPONENT_METADATA();
 
 /** Component declaration */
-DECLARE_COMPONENT(component_keyring_file, "component_keyring_file")
-keyring_file::keyring_file_init,
-    keyring_file::keyring_file_deinit END_DECLARE_COMPONENT();
+DECLARE_COMPONENT(component_keyring_kmip, "component_keyring_kmip")
+keyring_kmip::keyring_kmip_init,
+    keyring_kmip::keyring_kmip_deinit END_DECLARE_COMPONENT();
 
 /** Component contained in this library */
-DECLARE_LIBRARY_COMPONENTS &COMPONENT_REF(component_keyring_file)
+DECLARE_LIBRARY_COMPONENTS &COMPONENT_REF(component_keyring_kmip)
     END_DECLARE_LIBRARY_COMPONENTS

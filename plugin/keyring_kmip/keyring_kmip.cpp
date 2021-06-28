@@ -20,6 +20,7 @@
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 
 #include <boost/container/pmr/polymorphic_allocator.hpp>
 

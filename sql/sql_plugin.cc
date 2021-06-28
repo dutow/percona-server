@@ -526,6 +526,7 @@ static void report_error(int where_to, uint error, ...) {
         ecode = ER_NO_PATH_FOR_SHARED_LIBRARY;
         break;
       case ER_CANT_OPEN_LIBRARY:
+        fprintf(stderr, "bbbb\n");
         ecode = ER_FAILED_TO_OPEN_SHARED_LIBRARY;
         break;
       case ER_CANT_FIND_DL_ENTRY:

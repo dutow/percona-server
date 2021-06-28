@@ -24,3 +24,4 @@ ADD_SUBDIRECTORY(common)
 
 # Keyring_file component
 ADD_SUBDIRECTORY(keyring_file)
+ADD_SUBDIRECTORY(keyring_kmip)

@@ -157,6 +157,7 @@ component_reference_cache      plugin_output_directory  no  REFERENCE_CACHE_COMP
 
 # keyring file component
 component_keyring_file          plugin_output_directory  yes  KEYRING_FILE_COMPONENT component_keyring_file
+component_keyring_kmip          plugin_output_directory  no  KEYRING_KMIP_COMPONENT component_keyring_kmip
 
 # Percona additions
 auth_socket        plugin_output_directory  no  SOCKET_AUTH
@@ -171,4 +172,4 @@ keyring_vault      plugin_output_directory  no  KEYRING_VAULT_PLUGIN keyring_vau
 test_udf_wrappers  plugin_output_directory  no  TEST_UDF_WRAPPERS_LIB
 binlog_utils_udf   plugin_output_directory  no  BINLOG_UTILS_UDF_LIB
 procfs             plugin_output_directory  no  PROCFS_PLUGIN procfs
-keyring_kmip       plugin_output_directory      KEYRING_KMIP_PLUGIN keyring_kmip
+

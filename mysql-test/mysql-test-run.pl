@@ -306,6 +306,7 @@ our @DEFAULT_SUITES = qw(
   tokudb_parts
   tokudb_perfschema
   tokudb_rpl
+  component_keyring_kmip
 
   audit_null
   engines/iuds

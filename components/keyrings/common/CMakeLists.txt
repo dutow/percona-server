@@ -28,8 +28,10 @@ SET(KEYRING_COMMON_SOURCES
   # Config file reader
   config/config_reader.cc
   # Data representation
+  data/boost.cc
   data/data.cc
   data/meta.cc
+  data/psi_memory_resource.cpp
   # File reader/writer
   data_file/reader.cc
   data_file/writer.cc

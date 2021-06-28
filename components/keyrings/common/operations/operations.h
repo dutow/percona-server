@@ -746,7 +746,7 @@ class Keyring_operations {
     cache_.clear();
 
     valid_ = false;
-    if (backend == nullptr || backend->size() == 0) {
+    if (backend == nullptr /*|| backend->size() == 0*/) {
       valid_ = true;
       return;
     }
