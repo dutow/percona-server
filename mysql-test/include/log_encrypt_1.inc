@@ -5,11 +5,31 @@
 --source include/have_innodb_max_16k.inc
 
 --disable_query_log
+<<<<<<< HEAD:mysql-test/include/log_encrypt_1.inc
 call mtr.add_suppression("Ignoring tablespace .* because it could not be opened");
 call mtr.add_suppression("Encryption can't find master key, please check the keyring is loaded.");
 call mtr.add_suppression("Redo log cannot be encrypted if the keyring is not loaded.");
 call mtr.add_suppression("Check keyring fail, please check the keyring is loaded.");
 call mtr.add_suppression("Redo log key generation failed.");
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_1.test
+call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
+call mtr.add_suppression("\\[Error\\] .* Encryption can't find master key, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .* Operating system error number 2 in a file operation.");
+call mtr.add_suppression("\\[ERROR\\] .* The error means the system cannot find the path specified.");
+call mtr.add_suppression("\\[ERROR\\] .* Could not find a valid tablespace file for");
+call mtr.add_suppression("\\[ERROR\\] .* If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.");
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log tablespace to be encrypted.");
+=======
+call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
+call mtr.add_suppression("\\[Error\\] .* Encryption can't find master key, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .* Operating system error number 2 in a file operation.");
+call mtr.add_suppression("\\[ERROR\\] .* The error means the system cannot find the path specified.");
+call mtr.add_suppression("\\[ERROR\\] .* Could not find a valid tablespace file for");
+call mtr.add_suppression("\\[ERROR\\] .* If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.");
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log files to be encrypted.");
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_1.test
 --enable_query_log
 
 --let $restart_parameters = restart: $KEYRING_PARAMS

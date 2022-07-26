@@ -3,9 +3,35 @@
 
 --source include/no_valgrind_without_big.inc
 
+<<<<<<< HEAD:mysql-test/include/log_encrypt_2.inc
 # Restart the server with keyring loaded
 --let $restart_parameters= restart: $KEYRING_PARAMS
 --source include/restart_mysqld_no_echo.inc
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_2.test
+#Suppress following messages from myslqd log
+--disable_query_log
+call mtr.add_suppression("keyring_file initialization failure. Please check if the keyring_file_data points to readable keyring file or keyring file can be created in the specified location. The keyring_file will stay unusable until correct path to the keyring file gets provided");
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Can't generate new master key for tablespace encryption, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Encryption can't find master key, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Function 'keyring_file' already exists");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Couldn't load plugin named 'keyring_file' with soname 'keyring_file.*'.");
+call mtr.add_suppression("Plugin keyring_file reported");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Can't set redo log tablespace to be encrypted.");
+call mtr.add_suppression("You need to use --log-bin to make --binlog-format work");
+--enable_query_log
+=======
+#Suppress following messages from myslqd log
+--disable_query_log
+call mtr.add_suppression("keyring_file initialization failure. Please check if the keyring_file_data points to readable keyring file or keyring file can be created in the specified location. The keyring_file will stay unusable until correct path to the keyring file gets provided");
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Can't generate new master key for tablespace encryption, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Encryption can't find master key, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Function 'keyring_file' already exists");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Couldn't load plugin named 'keyring_file' with soname 'keyring_file.*'.");
+call mtr.add_suppression("Plugin keyring_file reported");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Can't set redo log files to be encrypted.");
+call mtr.add_suppression("You need to use --log-bin to make --binlog-format work");
+--enable_query_log
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_2.test
 
 SHOW VARIABLES LIKE "%innodb_redo_log_encrypt%";
 

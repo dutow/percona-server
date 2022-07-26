@@ -8,16 +8,28 @@
 --disable_query_log
 call mtr.add_suppression("keyring_file initialization failure. Please check if the keyring_file_data points to readable keyring file or keyring file can be created in the specified location. The keyring_file will stay unusable until correct path to the keyring file gets provided");
 call mtr.add_suppression("Error while loading keyring content. The keyring might be malformed");
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 call mtr.add_suppression("\\[Error\\] InnoDB: Encryption can't find masterkey, please check the keyring is loaded.");
 call mtr.add_suppression("\\[ERROR\\] InnoDB: Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
 call mtr.add_suppression("\\[ERROR\\] InnoDB: If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.");
 call mtr.add_suppression ("InnoDB: New log files created");
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Encryption can't find masterkey, please check the keyring is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.");
+call mtr.add_suppression (" New log files created");
+=======
+call mtr.add_suppression("\\[Error\\] .*MY-\\d+.* Encryption can't find masterkey, please check the keyring is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .*MY-\\d+.* If you are installing InnoDB, remember that you must create directories yourself, InnoDB does not create them.");
+call mtr.add_suppression (" New redo log files created");
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 --enable_query_log
 
 let $old_innodb_file_per_table = `SELECT @@innodb_file_per_table`;
 let $old_innodb_redo_log_encrypt = `SELECT @@innodb_redo_log_encrypt`;
 let $START_PAGE_SIZE= `select @@innodb_page_size`;
-let $LOG_FILE_SIZE= `select @@innodb_log_file_size`;
+let $LOG_CAPACITY= `select @@innodb_redo_log_capacity`;
 let $MYSQLD_BASEDIR= `select @@basedir`;
 
 --mkdir $MYSQL_TMP_DIR/log_encrypt_dir1_$redo_log_mode
@@ -33,13 +45,29 @@ EOF
 --echo # Stop the MTR default DB server
 --source include/shutdown_mysqld.inc
 
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --initialize-insecure --innodb_log_file_size=$LOG_FILE_SIZE --innodb_page_size=$START_PAGE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1 --init-file=$BOOTSTRAP_SQL --secure-file-priv="" --innodb_redo_log_encrypt=$redo_log_encrypt_mode $KEYRING_PLUGIN_EARLY_LOAD --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 $KEYRING_PLUGIN_OPT </dev/null>>$MYSQL_TMP_DIR/bootstrap1.log 2>&1;
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --initialize-insecure --innodb_log_file_size=$LOG_FILE_SIZE --innodb_page_size=$START_PAGE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1 --init-file=$BOOTSTRAP_SQL --secure-file-priv="" --innodb_redo_log_encrypt=ON --early-plugin-load="keyring_file=$KEYRING_PLUGIN" --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 $KEYRING_PLUGIN_OPT </dev/null>>$MYSQLTEST_VARDIR/tmp/bootstrap1.log 2>&1;
+=======
+let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --initialize-insecure --innodb_redo_log_capacity=$LOG_CAPACITY --innodb_page_size=$START_PAGE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1 --init-file=$BOOTSTRAP_SQL --secure-file-priv="" --innodb_redo_log_encrypt=ON --early-plugin-load="keyring_file=$KEYRING_PLUGIN" --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 $KEYRING_PLUGIN_OPT </dev/null>>$MYSQLTEST_VARDIR/tmp/bootstrap1.log 2>&1;
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 
 --echo # Run the bootstrap command of datadir1
 --exec $NEW_CMD
 
 --echo # Start the DB server with datadir1
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 --let $restart_parameters = restart: $KEYRING_PLUGIN_EARLY_LOAD $KEYRING_PLUGIN_OPT --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 --innodb_redo_log_encrypt=$redo_log_encrypt_mode --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_FILE_SIZE LOG_FILE_SIZE
+--let $restart_parameters="restart: --early-plugin-load="keyring_file=$KEYRING_PLUGIN" $KEYRING_PLUGIN_OPT --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 --innodb_redo_log_encrypt=ON --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE"
+--replace_regex /\.dll/.so/
+=======
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_CAPACITY LOG_CAPACITY
+--let $restart_parameters="restart: --early-plugin-load="keyring_file=$KEYRING_PLUGIN" $KEYRING_PLUGIN_OPT --keyring_file_data=$MYSQL_TMP_DIR/my_key_redo4 --innodb_redo_log_encrypt=ON --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_redo_log_capacity=$LOG_CAPACITY"
+--replace_regex /\.dll/.so/
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 --source include/start_mysqld_no_echo.inc
 
 CREATE DATABASE tde_db;
@@ -82,16 +110,33 @@ DROP DATABASE tde_db;
 --source include/shutdown_mysqld.inc
 
 --echo # Try starting without keyring : Error
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1  --secure-file-priv="" --console </dev/null>>$MYSQL_TMP_DIR/wl9290.err 2>&1;
 --error 1
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1  --secure-file-priv="" --console </dev/null>>$MYSQL_TMP_DIR/wl9290.err 2>&1;
+--error 1,42
+=======
+let NEW_CMD = $MYSQLD --no-defaults --innodb_dedicated_server=OFF --innodb_page_size=$START_PAGE_SIZE --innodb_redo_log_capacity=$LOG_CAPACITY --basedir=$MYSQLD_BASEDIR --datadir=$MYSQLD_DATADIR1  --secure-file-priv="" --console </dev/null>>$MYSQL_TMP_DIR/wl9290.err 2>&1;
+--error 1,42
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 --exec $NEW_CMD
 
 --echo # Restart without keyring plugin possible if redo files removed
---remove_file $MYSQLD_DATADIR1/ib_logfile0
---remove_file $MYSQLD_DATADIR1/ib_logfile1
+--remove_files_wildcard $MYSQLD_DATADIR1/#innodb_redo #ib_redo*
 
 --echo # Start the DB server with datadir1
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 --let $restart_parameters = restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_FILE_SIZE LOG_FILE_SIZE
+--let $restart_parameters="restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE"
+--replace_regex /\.dll/.so/
+=======
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_CAPACITY LOG_CAPACITY
+--let $restart_parameters="restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_redo_log_capacity=$LOG_CAPACITY"
+--replace_regex /\.dll/.so/
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 --source include/start_mysqld_no_echo.inc
 
 --echo # Search for error message
@@ -105,7 +150,17 @@ let SEARCH_PATTERN=  Redo log was encrypted, but keyring is not loaded;
 
 --echo # Try starting without keyring and  --innodb_force_recovery=SRV_FORCE_NO_LOG_REDO.
 --echo # Start the DB server with datadir1
+<<<<<<< HEAD:mysql-test/include/log_encrypt_6.inc
 --let $restart_parameters = restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE --innodb_force_recovery=6 --no-console --log-error=$MYSQL_TMP_DIR/wl9290_2.err
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_6.test
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_FILE_SIZE LOG_FILE_SIZE
+--let $restart_parameters="restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_log_file_size=$LOG_FILE_SIZE --innodb_force_recovery=6 --no-console --log-error=$MYSQL_TMP_DIR/wl9290_2.err "
+--replace_regex /\.dll/.so/
+=======
+--replace_result $MYSQL_TMP_DIR TMP_DIR $KEYRING_PLUGIN_OPT --plugin-dir=KEYRING_PLUGIN_PATH $MYSQLD_DATADIR1 DATADIR1 $START_PAGE_SIZE PAGE_SIZE $LOG_CAPACITY LOG_CAPACITY
+--let $restart_parameters="restart: --datadir=$MYSQLD_DATADIR1 --innodb_page_size=$START_PAGE_SIZE --innodb_redo_log_capacity=$LOG_CAPACITY --innodb_force_recovery=6 --no-console --log-error=$MYSQL_TMP_DIR/wl9290_2.err "
+--replace_regex /\.dll/.so/
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_6.test
 --source include/start_mysqld_no_echo.inc
 SELECT 1;
 

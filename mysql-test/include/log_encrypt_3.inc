@@ -4,10 +4,26 @@
 --source include/have_innodb_max_16k.inc
 
 call mtr.add_suppression("ibd can't be decrypted, please confirm that keyring is loaded.");
+<<<<<<< HEAD:mysql-test/include/log_encrypt_3.inc
 call mtr.add_suppression("Encryption can't find master key, please check the keyring is loaded.");
 call mtr.add_suppression("Redo log cannot be encrypted if the keyring is not loaded.");
 call mtr.add_suppression("Check keyring fail, please check the keyring is loaded.");
 call mtr.add_suppression("Redo log key generation failed.");
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_3.test
+call mtr.add_suppression("\\[Warning\\] .* Plugin mysqlx reported.*");
+call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
+call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log tablespace to be encrypted.");
+--enable_query_log
+=======
+call mtr.add_suppression("\\[Warning\\] .* Plugin mysqlx reported.*");
+call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
+call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log files to be encrypted.");
+--enable_query_log
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_3.test
 
 let $old_innodb_redo_log_encrypt = `SELECT @@innodb_redo_log_encrypt`;
 CREATE DATABASE tde_db;

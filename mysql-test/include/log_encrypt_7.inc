@@ -14,9 +14,15 @@ call mtr.add_suppression("\\[Warning\\] .* Plugin mysqlx reported.*");
 call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
 call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring is loaded.");
 call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");
+<<<<<<< HEAD:mysql-test/include/log_encrypt_7.inc
 call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log tablespace to be encrypted.");
 call mtr.add_suppression("Check keyring fail, please check the keyring is loaded.");
 call mtr.add_suppression("Redo log cannot be encrypted if the keyring is not loaded.");
+||||||| 8d8c986e571:mysql-test/suite/innodb/t/log_encrypt_7.test
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log tablespace to be encrypted.");
+=======
+call mtr.add_suppression("\\[ERROR\\] .* Can't set redo log files to be encrypted.");
+>>>>>>> mysql-8.0.30:mysql-test/suite/innodb/t/log_encrypt_7.test
 --enable_query_log
 
 #Enable redo log encryption, should report error in server log, since keyring is not loaded.
