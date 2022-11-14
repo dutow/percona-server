@@ -4675,6 +4675,13 @@ error_exit:
   return (ret);
 }
 
+bool innobase_fix_default_table_encryption(ulong encryption_option, bool is_server_starting) {
+  if (!srv_read_only_mode) {
+    srv_default_table_encryption = static_cast<enum_default_table_encryption>(encryption_option);
+  }
+  return false;
+}
+
 /** Fix the empty UUID of tablespaces like system, temp etc by generating
 a new master key and do key rotation. These tablespaces if encrypted
 during startup, will be encrypted with tablespace key which has empty UUID
@@ -5542,6 +5549,9 @@ static int innodb_init(void *p) {
 
   innobase_hton->fix_tablespaces_empty_uuid =
       innobase_fix_tablespaces_empty_uuid;
+
+  innobase_hton->fix_default_table_encryption =
+      innobase_fix_default_table_encryption;
 
   innobase_hton->redo_log_set_state = innobase_redo_set_state;
 

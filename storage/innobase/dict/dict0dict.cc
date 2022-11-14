@@ -6266,6 +6266,5 @@ bool dict_detect_encryption(bool is_upgrade) {
     encrypt_mysql = FSP_FLAGS_GET_ENCRYPTION(space->flags);
   }
 
-  return (encrypt_mysql ||
-          false); // TODO: should we port the srv_default_table_encryption);
+  return (encrypt_mysql || srv_default_table_encryption);
 }
