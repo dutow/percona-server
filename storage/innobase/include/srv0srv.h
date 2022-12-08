@@ -173,6 +173,9 @@ struct srv_stats_t {
 
   /* Number of row log blocks decrypted */
   ulint_ctr_64_t n_rowlog_blocks_decrypted;
+
+  /** Number of times page 0 is read from tablespace */
+  ulint_ctr_64_t page0_read;
 };
 
 /** Structure which keeps shared future objects for InnoDB background

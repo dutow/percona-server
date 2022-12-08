@@ -5,6 +5,7 @@
 --source include/have_innodb_max_16k.inc
 
 --disable_query_log
+call mtr.add_suppression("please check the keyring is loaded");
 call mtr.add_suppression("\\[Warning\\] .* Ignoring tablespace .* because it could not be opened");
 call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring is loaded.");
 call mtr.add_suppression("\\[ERROR\\] .* Failed to find tablespace for table `\.\.*`\.`\.\.*` in the cache.");

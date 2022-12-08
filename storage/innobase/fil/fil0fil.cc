@@ -2588,8 +2588,15 @@ dberr_t Fil_shard::get_file_size(fil_node_t *file, bool read_only_mode) {
     space->flags |= flags & FSP_FLAGS_MASK_ENCRYPTION;
   }
 
+  /* Make a copy of space->flags and flags from the page header
+  so that they can be compared. */
+  /* Do not compare the data directory flag, in case this tablespace was
+  relocated. */
+  auto fil_space_flags = space->flags & ~FSP_FLAGS_MASK_DATA_DIR;
+  auto header_fsp_flags = flags & ~FSP_FLAGS_MASK_DATA_DIR;
+
   /* Make sure the space_flags are the same as the header page flags. */
-  if (space->flags != flags) {
+  if (UNIV_UNLIKELY(fil_space_flags != header_fsp_flags)) {
     ib::error(ER_IB_MSG_272, ulong{space->flags}, file->name, ulonglong{flags});
     ut_error;
   }
@@ -3305,6 +3312,8 @@ fil_space_t *Fil_shard::space_create(const char *name, space_id_t space_id,
   rw_lock_create(fil_space_latch_key, &space->latch, SYNC_FSP);
 
   space->is_corrupt = false;
+
+  //space->is_space_encrypted = false;
 
 #ifndef UNIV_HOTBACKUP
   if (space->purpose == FIL_TYPE_TEMPORARY) {
@@ -7910,6 +7919,13 @@ dberr_t Fil_shard::do_io(const IORequest &type, bool sync,
     req_type.clear_compressed();
   }
 
+  if (page_size.is_compressed()) {
+    // TODO
+    //req_type.mark_page_zip_compressed();
+    //req_type.set_zip_page_physical_size(page_size.physical());
+    ut_ad(page_size.physical() > 0);
+  }
+
   /* Set encryption information. */
   fil_io_set_encryption(req_type, page_id, space);
 
@@ -8417,6 +8433,8 @@ static dberr_t fil_iterate(const Fil_page_iterator &iter, buf_block_t *block,
   ulint write_type = IORequest::WRITE;
 
   for (offset = iter.m_start; offset < iter.m_end; offset += n_bytes) {
+    IORequest read_request(read_type);
+
     byte *io_buffer = iter.m_io_buffer;
 
     block->frame = io_buffer;
@@ -8432,6 +8450,9 @@ static dberr_t fil_iterate(const Fil_page_iterator &iter, buf_block_t *block,
       block->page.zip.data = block->frame + UNIV_PAGE_SIZE;
       ut_d(block->page.zip.m_external = true);
       ut_ad(iter.m_page_size == callback.get_page_size().physical());
+
+      //read_request.mark_page_zip_compressed();
+      //TODO read_request.set_zip_page_physical_size(iter.m_page_size);
 
       /* Zip IO is done in the compressed page buffer. */
       io_buffer = block->page.zip.data;
@@ -8449,7 +8470,6 @@ static dberr_t fil_iterate(const Fil_page_iterator &iter, buf_block_t *block,
     ut_ad(!(n_bytes % iter.m_page_size));
 
     dberr_t err;
-    IORequest read_request(read_type);
     read_request.block_size(iter.block_size);
 
     /* For encrypted table, set encryption information. */
@@ -9045,6 +9065,8 @@ dberr_t fil_set_encryption(space_id_t space_id, Encryption::Type algorithm,
 
   Encryption::set_or_generate(algorithm, key, iv, space->m_encryption_metadata);
 
+  fsp_flags_set_encryption(space->flags);
+
   shard->mutex_release();
 
   return DB_SUCCESS;
@@ -9055,10 +9077,6 @@ dberr_t fil_set_encryption(space_id_t space_id, Encryption::Type algorithm,
 @return DB_SUCCESS or error code */
 dberr_t fil_reset_encryption(space_id_t space_id) {
   ut_ad(space_id != TRX_SYS_SPACE);
-
-  if (fsp_is_system_or_temp_tablespace(space_id)) {
-    return DB_IO_NO_ENCRYPT_TABLESPACE;
-  }
 
   auto shard = fil_system->shard_by_id(space_id);
 

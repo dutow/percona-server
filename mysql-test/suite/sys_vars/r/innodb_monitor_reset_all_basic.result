@@ -43,6 +43,7 @@ buffer_pool_pages_free	disabled
 buffer_pages_created	disabled
 buffer_pages_written	disabled
 buffer_pages_read	disabled
+buffer_pages0_read	disabled
 buffer_data_reads	disabled
 buffer_data_written	disabled
 buffer_flush_batch_scanned	disabled

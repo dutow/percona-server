@@ -11,18 +11,10 @@ SELECT @@table_encryption_privilege_check;
 @@table_encryption_privilege_check
 0
 CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-<<<<<<< HEAD
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system;
-=======
 ERROR HY000: Request to create 'encrypted' table while using an 'unencrypted' tablespace.
 CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system;
 DROP TABLE t1;
 CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 DROP TABLE t2;
 # System is unencrypted, test with DEFAULT ENCRYPTION=N
 # and table_encryption_privilege_check=ON
@@ -52,65 +44,6 @@ SET GLOBAL table_encryption_privilege_check = ON;
 SELECT @@default_table_encryption;
 @@default_table_encryption
 OFF
-<<<<<<< HEAD
-CREATE TABLE t4(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t4;
-CREATE TABLE t5(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t6(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-DROP TABLE t6;
-# System is unencrypted, test with innodb_encrypt_tables=ON
-SET GLOBAL innodb_encrypt_tables=ON;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-ON
-CREATE TABLE t7(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t8(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t8(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-DROP TABLE t8;
-# System is unencrypted, test with innodb_encrypt_tables=FORCE
-SET GLOBAL innodb_encrypt_tables=FORCE;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-FORCE
-CREATE TABLE t9(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t10(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t11(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB: Only ENCRYPTED tables can be created with innodb_encrypt_tables=FORCE.
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-CREATE TABLE t4(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t4;
-CREATE TABLE t5(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t6(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t6;
-# System is unencrypted, test with innodb_encrypt_tables=ON
-SET GLOBAL innodb_encrypt_tables=ON;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-ON
-CREATE TABLE t7(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t8(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t8(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-# System is unencrypted, test with innodb_encrypt_tables=FORCE
-SET GLOBAL innodb_encrypt_tables=FORCE;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-FORCE
-CREATE TABLE t9(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` cannot contain an ENCRYPTED table.
-CREATE TABLE t10(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t11(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-=======
 CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system;
 ERROR HY000: Request to create 'encrypted' table while using an 'unencrypted' tablespace.
 CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
@@ -138,7 +71,6 @@ CREATE TABLESPACE tb01 ADD DATAFILE 'tb01.ibd';
 ALTER TABLE t1 TABLESPACE = tb01;
 DROP TABLE t1;
 DROP TABLESPACE tb01;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 # Stop the instance which was created by MTR
 # create bootstrap file
 # start unencrypted system with --innodb-sys-tablespace-encrypt=ON
@@ -157,84 +89,6 @@ SELECT @@innodb_sys_tablespace_encrypt;
 @@innodb_sys_tablespace_encrypt
 1
 include/assert.inc [System tablespace should be encrypted]
-<<<<<<< HEAD
-CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-CREATE TABLE t3(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-# System is encrypted, test with innodb_encrypt_tables=OFF
-SET GLOBAL innodb_encrypt_tables=OFF;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-OFF
-CREATE TABLE t4(a TEXT) TABLESPACE = innodb_system;
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-CREATE TABLE t4_1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-CREATE TABLE t4_2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-DROP TABLE t4_2;
-# System is encrypted, test with innodb_encrypt_tables=ON
-SET GLOBAL innodb_encrypt_tables=ON;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-ON
-CREATE TABLE t5(a TEXT) TABLESPACE = innodb_system;
-CREATE TABLE t5_1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-CREATE TABLE t5_2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-DROP TABLE t5_2;
-# System is encrypted, test with innodb_encrypt_tables=FORCE
-SET GLOBAL innodb_encrypt_tables=FORCE;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-FORCE
-CREATE TABLE t5_3(a TEXT) TABLESPACE = innodb_system;
-CREATE TABLE t5_4(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB: Only ENCRYPTED tables can be created with innodb_encrypt_tables=FORCE.
-CREATE TABLE t5_5(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-DROP TABLE t5_5;
-SET GLOBAL innodb_encrypt_tables=default;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system;
-CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t3(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-# System is encrypted, test with innodb_encrypt_tables=OFF
-SET GLOBAL innodb_encrypt_tables=OFF;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-OFF
-CREATE TABLE t4(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t4;
-CREATE TABLE t4_1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t4_2(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t4_2;
-# System is encrypted, test with innodb_encrypt_tables=ON
-SET GLOBAL innodb_encrypt_tables=ON;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-ON
-CREATE TABLE t5(a TEXT) TABLESPACE = innodb_system;
-CREATE TABLE t5_1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t5_2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-# System is encrypted, test with innodb_encrypt_tables=FORCE
-SET GLOBAL innodb_encrypt_tables=FORCE;
-SELECT @@innodb_encrypt_tables;
-@@innodb_encrypt_tables
-FORCE
-CREATE TABLE t5_3(a TEXT) TABLESPACE = innodb_system;
-DROP TABLE t5_3;
-CREATE TABLE t5_4(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-CREATE TABLE t5_5(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-SET GLOBAL innodb_encrypt_tables=default;
-=======
 CREATE DATABASE db1;
 CREATE USER u1@localhost;
 GRANT ALL ON db1.* TO u1@localhost;
@@ -287,119 +141,42 @@ SET GLOBAL table_encryption_privilege_check = OFF;
 CREATE TABLE t1(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
 CREATE TABLE t2(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
 CREATE TABLE t8(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 INSERT INTO t1 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
 INSERT INTO t2 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
 INSERT INTO t8 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
 # rebuild a table remains encrypted
-<<<<<<< HEAD
-CREATE TABLE t6(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-INSERT INTO t6 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t6 ALGORITHM=COPY, TABLESPACE=innodb_system;
-SHOW CREATE TABLE t6;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-CREATE TABLE t6(a TEXT) TABLESPACE = innodb_system;
-INSERT INTO t6 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t6 ALGORITHM=COPY, TABLESPACE=innodb_system;
-SHOW CREATE TABLE t6;
-=======
 CREATE TABLE t3(a TEXT) TABLESPACE = innodb_system;
 INSERT INTO t3 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
 ALTER TABLE t3 ALGORITHM=COPY, TABLESPACE=innodb_system;
 SHOW CREATE TABLE t3;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 Table	Create Table
 t3	CREATE TABLE `t3` (
   `a` text
-<<<<<<< HEAD
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='Y'
-CREATE TABLE t7(a TEXT) TABLESPACE = innodb_system, ENCRYPTION='Y';
-INSERT INTO t7 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t7 ALGORITHM=COPY;
-SHOW CREATE TABLE t7;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-CREATE TABLE t7(a TEXT) TABLESPACE = innodb_system;
-INSERT INTO t7 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t7 ALGORITHM=COPY;
-SHOW CREATE TABLE t7;
-=======
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
 CREATE TABLE t4(a TEXT) TABLESPACE = innodb_system;
 INSERT INTO t4 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
 ALTER TABLE t4 ALGORITHM=COPY;
 SHOW CREATE TABLE t4;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 Table	Create Table
 t4	CREATE TABLE `t4` (
   `a` text
-<<<<<<< HEAD
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='Y'
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-=======
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 # rebuild to a table unencrypted and in system should be disalowed
-<<<<<<< HEAD
-ALTER TABLE t7 ALGORITHM=COPY, ENCRYPTION='N';
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-SHOW CREATE TABLE t7;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-ALTER TABLE t7 ALGORITHM=COPY, ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-SHOW CREATE TABLE t7;
-=======
 ALTER TABLE t4 ALGORITHM=COPY, ENCRYPTION='N';
 ERROR HY000: Request to create 'unencrypted' table while using an 'encrypted' tablespace.
 SHOW CREATE TABLE t4;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 Table	Create Table
 t4	CREATE TABLE `t4` (
   `a` text
-<<<<<<< HEAD
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='Y'
-ALTER TABLE t7 ENCRYPTION='N';
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-SHOW CREATE TABLE t7;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-ALTER TABLE t7 ENCRYPTION='N';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-SHOW CREATE TABLE t7;
-=======
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
 ALTER TABLE t4 ENCRYPTION='N';
 ERROR HY000: Request to create 'unencrypted' table while using an 'encrypted' tablespace.
 SHOW CREATE TABLE t4;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 Table	Create Table
 t4	CREATE TABLE `t4` (
   `a` text
-<<<<<<< HEAD
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='Y'
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-=======
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 # Move encrypted table in system tablespace to file_per_table tablespace
-<<<<<<< HEAD
-# t7 should be encrypted table. Verify the ibd later
-ALTER TABLE t7 TABLESPACE=`innodb_file_per_table`;
-SHOW CREATE TABLE t7;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-# t7 should be encrypted table. Verify the ibd later
-ALTER TABLE t7 TABLESPACE=`innodb_file_per_table`;
-ERROR HY000: Source tablespace is encrypted but target tablespace is not.
-SHOW CREATE TABLE t7;
-Table	Create Table
-t7	CREATE TABLE `t7` (
-  `a` text
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-ALTER TABLE t7 TABLESPACE=`innodb_file_per_table`, ENCRYPTION='Y';
-SHOW CREATE TABLE t7;
-=======
 # t4 should be encrypted table. Verify the ibd later
 ALTER TABLE t4 TABLESPACE=`innodb_file_per_table`;
 ERROR HY000: Source tablespace is encrypted but target tablespace is not.
@@ -410,19 +187,10 @@ t4	CREATE TABLE `t4` (
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
 ALTER TABLE t4 TABLESPACE=`innodb_file_per_table`, ENCRYPTION='Y';
 SHOW CREATE TABLE t4;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 Table	Create Table
 t4	CREATE TABLE `t4` (
   `a` text
 ) /*!50100 TABLESPACE `innodb_file_per_table` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='Y'
-<<<<<<< HEAD
-# Move encrypted table in sytem tablespace as an unencrypted table
-ALTER TABLE t6 TABLESPACE=`innodb_file_per_table`, ENCRYPTION='N';
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-# Move encrypted table in system tablespace as an unencrypted table
-ALTER TABLE t6 TABLESPACE=`innodb_file_per_table`, ENCRYPTION='N';
-ERROR HY000: Source tablespace is encrypted but target tablespace is not.
-=======
 # Move encrypted table in system tablespace as an unencrypted table
 ALTER TABLE t3 TABLESPACE=`innodb_file_per_table`, ENCRYPTION='N';
 Warnings:
@@ -448,44 +216,10 @@ SELECT @@innodb_sys_tablespace_encrypt;
 @@innodb_sys_tablespace_encrypt
 1
 ALTER TABLE t6 TABLESPACE=`innodb_system`;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 SHOW CREATE TABLE t6;
 Table	Create Table
 t6	CREATE TABLE `t6` (
   `a` text
-<<<<<<< HEAD
-) /*!50100 TABLESPACE `innodb_file_per_table` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ENCRYPTION='N'
-# Move unencrypted file_per_table to a table in encrypted system tablespace
-CREATE TABLE t8(a TEXT);
-INSERT INTO t8 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t8 TABLESPACE=`innodb_system`;
-ERROR HY000: InnoDB: Tablespace `innodb_system` can contain only an ENCRYPTED tables.
-ALTER TABLE t8 TABLESPACE=`innodb_system`, ENCRYPTION='Y';
-# Move encrypted file_per_table to a table in encrypted system tablespace
-CREATE TABLE t9(a TEXT) ENCRYPTION='Y';
-INSERT INTO t9 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t9 TABLESPACE=`innodb_system`;
-||||||| parent of c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-# Move unencrypted file_per_table to a table in encrypted system tablespace
-CREATE TABLE t8(a TEXT);
-INSERT INTO t8 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-ALTER TABLE t8 TABLESPACE=`innodb_system`;
-ALTER TABLE t8 TABLESPACE=`innodb_system`, ENCRYPTION='Y';
-ERROR HY000: InnoDB : ENCRYPTION is not accepted syntax for CREATE/ALTER table, for tables in general/shared tablespace.
-# Move encrypted file_per_table to a table in encrypted system tablespace
-CREATE TABLE t9(a TEXT) ENCRYPTION='Y';
-INSERT INTO t9 (a) VALUES ('Abracadabra is of unknown origin, and its first occurrence is');
-SELECT @@innodb_sys_tablespace_encrypt;
-@@innodb_sys_tablespace_encrypt
-1
-ALTER TABLE t9 TABLESPACE=`innodb_system`;
-SHOW CREATE TABLE t9;
-Table	Create Table
-t9	CREATE TABLE `t9` (
-  `a` text
-) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-=======
 ) /*!50100 TABLESPACE `innodb_system` */ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci /*!80016 ENCRYPTION='Y' */
 DROP TABLE t5, t6;
 # Test the behaviour when innodb_file_per_table is disabled
@@ -553,7 +287,6 @@ CREATE TABLESPACE tb01 ADD DATAFILE 'tb01.ibd' ENCRYPTION='Y';
 ALTER TABLE t2 TABLESPACE = tb01;
 DROP TABLE t2;
 DROP TABLESPACE tb01;
->>>>>>> c63de15a8ef ([encryption] PS-5926 : default_table_encryption=ON at bootstrap doesn't encrypt mysql.ibd)
 # make sure that system tablespace is encrypted
 Pattern not found.
 Pattern not found.

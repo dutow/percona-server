@@ -1404,8 +1404,7 @@ static inline space_id_t dict_check_sys_tablespaces(bool validate) {
     and tablespaces that already are in the tablespace cache. */
     if (fsp_is_system_or_temp_tablespace(space_id) ||
         fsp_is_undo_tablespace(space_id) ||
-        !fsp_is_shared_tablespace(fsp_flags) ||
-        fil_space_exists_in_mem(space_id, space_name, false, true)) {
+        !fsp_is_shared_tablespace(fsp_flags)) {
       continue;
     }
 

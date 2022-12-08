@@ -2491,11 +2491,12 @@ file::Block *dblwr::get_encrypted_frame(buf_page_t *bpage) noexcept {
   }
 
   space->get_encryption_info(type.get_encryption_info());
+  type.encryption_algorithm(Encryption::AES);
   page_size_t page_size(space->flags);
 
   if (page_size.is_compressed()) {
-    //ENCTODO type.mark_page_zip_compressed();
-    // ENCTODO type.set_zip_page_physical_size(page_size.physical());
+    //   ENCTODO type.mark_page_zip_compressed();
+    //   ENCTODO type.set_zip_page_physical_size(page_size.physical());
     ut_ad(page_size.physical() > 0);
   }
 
@@ -2974,6 +2975,7 @@ static bool is_dblwr_page_corrupted(const byte *page, fil_space_t *space,
     size_t z_page_size;
 
     space->get_encryption_info(en);
+    // TODO type.encryption_algorithm(Encryption::AES);
     fil_node_t *node = space->get_file_node(&page_no);
     req_type.block_size(node->block_size);
 

@@ -13,11 +13,11 @@
 # Avoid CrashReporter popup on Mac
 --source include/not_crashrep.inc
 
-# # innodb-force-recovery-crash needs debug
+# innodb-force-recovery-crash needs debug
 --source include/have_debug.inc
 
 --disable_query_log
-call mtr.add_suppression("Can't generate new master key for tablespace encryption, please check the keyring plugin is loaded.");
+call mtr.add_suppression("Can't generate new master key for tablespace encryption, please check the keyring is loaded.");
 call mtr.add_suppression("does not exist in the InnoDB internal data dictionary though MySQL is trying to drop it");
 call mtr.add_suppression("Cannot open table tde_db/.* from the internal data dictionary of InnoDB");
 call mtr.add_suppression("\\[Warning\\] .* Tablespace for table `tde_db`.`t1` is set as discarded");
@@ -27,7 +27,7 @@ call mtr.add_suppression("\\[Warning\\] .* Cannot calculate statistics for table
 call mtr.add_suppression("\\[Warning\\] .* Trying to access missing tablespace [0-9]+");
 call mtr.add_suppression("\\[Warning\\] .* Cannot save statistics for table .* because the \.ibd file is missing");
 call mtr.add_suppression("\\[ERROR\\] .* The table .* doesn't have a corresponding tablespace, it was discarded.");
-call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring plugin is loaded.");
+call mtr.add_suppression("\\[ERROR\\] .* Encryption can't find master key, please check the keyring is loaded.");
 call mtr.add_suppression("\\[ERROR\\] .* Encryption algorithm support missing:");
 call mtr.add_suppression("\\[Warning\\].* Encryption key missing: space_id=");
 call mtr.add_suppression("\\[Warning\\].* Decrypting a page in doublewrite file failed: space_id=");
@@ -203,20 +203,24 @@ INSERT INTO tde_db.t1 VALUES(7, "hhhhh");
 --error ER_TABLESPACE_DISCARDED
 SELECT * FROM tde_db.t1 ORDER BY c1 ;
 DROP TABLE tde_db.t1;
-#DROP DATABASE tde_db;
 
 --exec echo "restart: " > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
 --enable_reconnect
 --source include/wait_until_connected_again.inc
 --disable_reconnect
 
+--remove_files_wildcard $MYSQLD_DATADIR/tde_db/ t1.*
+DROP DATABASE tde_db;
+
 --echo #
 --echo # Bug #27307740 [ERROR] [MY-011066] INNODB: CORRUPT LOG RECORD FOUND
 --echo # DURING CRASH RECOVERY
 --echo #
 
+CREATE DATABASE tde_db;
+
 # Write file to make mysql-test-run.pl start up the server again
---exec echo "$KEYRING_RESTART_PARAM" > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
+--exec echo "$keyring_restart_param" > $MYSQLTEST_VARDIR/tmp/mysqld.1.expect
 
 CREATE TABLE tde_db.test_tbl(c1 int) ENCRYPTION="Y" ENGINE=InnoDB;
 
@@ -235,9 +239,10 @@ if ($keyring_file_test)
 
 SELECT COUNT(*) FROM tde_db.test_tbl;
 
+DROP TABLE tde_db.test_tbl;
 
 # Cleanup
-#DROP DATABASE tde_db;
+DROP DATABASE tde_db;
 eval SET GLOBAL innodb_file_per_table=$innodb_file_per_table;
 
 # Clean up
@@ -247,4 +252,15 @@ eval SET GLOBAL innodb_file_per_table=$innodb_file_per_table;
 --remove_file $MYSQLD_DATADIR/t1.ibd_back
 
 # Tests above might leave this in bad state
+if ($keyring_file_data)
+{
+  --remove_file $keyring_file_data
+}
+--let $restart_parameters=$keyring_restart_param
+--let $do_not_echo_parameters=1
+--source include/start_mysqld.inc
+
+# Verify normal operation
+CREATE TABLE test.t1(c1 INT, c2 char(20)) ENCRYPTION="Y" ENGINE = InnoDB;
+DROP TABLE test.t1;
 

@@ -671,11 +671,11 @@ IF(MY_COMPILER_IS_CLANG OR MY_COMPILER_IS_GNU)
   SET(MY_COMPILER_IS_GNU_OR_CLANG 1)
 ENDIF()
 
+SET(BUILD_TESTING ON)
 INCLUDE(CTest)
-# Explicitly disabling BUILD_TESTING set by just included CTest, since other
-# code is not ready to handle BUILD_TESTING set. If you try to remove the
-# directive and CMake configuration and reconfiguration finishes successfully,
-# remove the hack.
+# Explicitly disabling BUILD_TESTING since other code is not ready to handle
+# BUILD_TESTING set. If you try to remove the directive and CMake configuration
+# and reconfiguration finishes successfully, remove the hack.
 SET(BUILD_TESTING OFF)
 
 # Maintainer mode is default on only for debug builds using GCC/G++
@@ -1212,7 +1212,7 @@ IF(CMAKE_C_FLAGS MATCHES "-fsanitize" OR CMAKE_CXX_FLAGS MATCHES "-fsanitize")
 ENDIF()
 
 # Older versions of ccache must be disabled: export CCACHE_DISABLE=1
-# See http://www.cmake.org/Wiki/CTest/Coverage
+# See https://gitlab.kitware.com/cmake/community/-/wikis/doc/ctest/Coverage
 OPTION(ENABLE_GCOV "Enable gcov (debug, Linux builds only)" OFF)
 IF (ENABLE_GCOV AND NOT WIN32 AND NOT APPLE)
   STRING_APPEND(CMAKE_C_FLAGS   " -fprofile-arcs -ftest-coverage -DHAVE_GCOV")
@@ -1590,6 +1590,11 @@ ELSE()
   IF (WITH_SYSTEMD_DEBUG)
     MESSAGE(FATAL_ERROR "systemd-debugging requires systemd, and systemd requires linux")
   ENDIF()
+ENDIF()
+
+IF(APPLE)
+  # Get access to memset_s
+  ADD_DEFINITIONS(-D__STDC_WANT_LIB_EXT1__=1)
 ENDIF()
 
 # Run platform tests
