@@ -4318,6 +4318,8 @@ static dberr_t encrypt_begin_persist(fil_space_t *space) {
     ut_d(ut_error);
   }
 
+  DEBUG_SYNC(current_thd, "alter_encrypt_tablespace_wait_after_page0");
+
   /* Write operation type and progress (0 now) on page 0 */
   fsp_header_write_encryption_progress(
       space->id, space->flags, 0, Encryption::ENCRYPT_IN_PROGRESS, true, &mtr);
@@ -4334,9 +4336,6 @@ static dberr_t encrypt_begin_persist(fil_space_t *space) {
   expensive call to flush all by an interface that would flush only page-0. */
   buf_LRU_flush_or_remove_pages(space->id, BUF_REMOVE_FLUSH_WRITE, nullptr,
                                 false);
-
-  mtr.get_flush_observer()->flush();
-
   return DB_SUCCESS;
 }
 
@@ -4513,6 +4512,9 @@ static dberr_t decrypt_begin_persist(fil_space_t *space) {
   }
 
   mtr_commit(&mtr);
+
+  DEBUG_SYNC(current_thd, "alter_decrypt_tablespace_wait_after_page0");
+
   return err;
 }
 
