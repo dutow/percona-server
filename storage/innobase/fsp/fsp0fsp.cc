@@ -4334,6 +4334,9 @@ static dberr_t encrypt_begin_persist(fil_space_t *space) {
   expensive call to flush all by an interface that would flush only page-0. */
   buf_LRU_flush_or_remove_pages(space->id, BUF_REMOVE_FLUSH_WRITE, nullptr,
                                 false);
+
+  mtr.get_flush_observer()->flush();
+
   return DB_SUCCESS;
 }
 

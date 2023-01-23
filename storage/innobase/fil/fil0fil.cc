@@ -9970,7 +9970,7 @@ dberr_t Fil_system::open_for_recovery(space_id_t space_id) {
     pages in the doublewrite buffer, but the encryption_op_in_progress
     flag would only be set later in recovery.
    */
-    const bool is_dd = fsp_is_dd_tablespace(space_id);
+    const bool is_dd = false; //fsp_is_dd_tablespace(space_id);
 
     if ((FSP_FLAGS_GET_ENCRYPTION(space->flags) || is_undo ||
          is_dd || space->encryption_op_in_progress ==
